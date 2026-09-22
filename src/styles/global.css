@@ -71,6 +71,7 @@ img { display: block; max-width: 100%; }
 .plain-list { margin: 0; padding: 0; list-style: none; }
 .plain-list li { padding: 0.58rem 0; border-bottom: 1px solid var(--line); color: var(--ink-soft); font-size: 0.88rem; }
 .profile-column img { width: 100%; margin: 1.35rem 0 0; border: 5px solid var(--surface); border-radius: var(--radius-sm); outline: 1px solid var(--line); }
+.profile-avatar { aspect-ratio: 1; object-fit: cover; object-position: center; }
 
 .section { padding: var(--space-7) 0; }
 .section + .section { border-top: 1px solid var(--line); }
