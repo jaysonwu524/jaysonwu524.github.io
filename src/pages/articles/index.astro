@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+
+const articles = (await getCollection('articles')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<SiteLayout title="文章 | Jayson Wu">
+	<div class="container">
+		<header class="page-hero">
+			<p class="eyebrow">FIELD NOTES</p>
+			<h1 class="section-title">把实践写下来，<br />让思考可以被复用。</h1>
+			<p>关于架构、产品、团队和那些需要慢一点才能想清楚的问题。</p>
+		</header>
+
+		<section class="section">
+			<div class="article-index">
+				<div>
+					<h2 class="section-title">最新文章</h2>
+					<p class="section-intro">每一篇都从一个具体问题开始，尽量写到可以落地。</p>
+				</div>
+				<div>
+					{articles.map((article) => (
+						<a class="article-card" href={`/articles/${article.id}`}>
+							<time class="article-date" datetime={article.data.date.toISOString()}>{article.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit' })}</time>
+							<div>
+								<h2>{article.data.title}</h2>
+								<p>{article.data.description}</p>
+								<div class="tag-row">{article.data.tags.map((tag) => <span class="tag">{tag}</span>)}</div>
+							</div>
+						</a>
+					))}
+				</div>
+			</div>
+		</section>
+	</div>
+</SiteLayout>

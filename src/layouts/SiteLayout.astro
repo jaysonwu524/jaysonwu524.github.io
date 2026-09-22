@@ -1,0 +1,64 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = 'Jayson Wu / Architecture practice',
+	description = 'Jayson Wu personal site covering architecture practice, projects, and continuous learning.',
+} = Astro.props;
+
+const navItems = [
+	{ href: '/', label: '首页' },
+	{ href: '/projects', label: '项目' },
+	{ href: '/articles', label: '文章' },
+	{ href: '/resume', label: '简历' },
+];
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={description} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<div class="site-shell">
+			<header class="site-header">
+				<a class="brand" href="/" aria-label="回到首页">
+					<span class="brand-mark" aria-hidden="true">JW</span>
+					<span class="brand-name">Jayson Wu</span>
+				</a>
+				<nav class="site-nav" aria-label="主导航">
+					{navItems.map((item) => (
+						<a class:list={[{ active: currentPath === item.href }, 'nav-link']} href={item.href}>
+							{item.label}
+						</a>
+					))}
+				</nav>
+			</header>
+
+			<main>
+				<slot />
+			</main>
+
+			<footer class="site-footer">
+				<p>© {new Date().getFullYear()} Jayson Wu. 写关于软件架构、实时系统与工程实践。</p>
+				<div class="footer-meta">
+					<a href="https://github.com/jaysonwu524" target="_blank" rel="noreferrer">GitHub</a>
+					<a href="mailto:jaysonwu524@gmail.com">Gmail</a>
+					<a href="/articles">Writing</a>
+				</div>
+			</footer>
+		</div>
+	</body>
+</html>

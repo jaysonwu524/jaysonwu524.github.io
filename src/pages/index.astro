@@ -1,0 +1,59 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+const articles = [
+	{ title: 'RateHub：从分布式行情平台到单体实时服务的架构收敛', summary: '一次围绕实时状态、历史数据与系统复杂度的架构重构。', href: '/articles/architecture-evolution', date: '2026.09.20' },
+	{ title: '用决策记录，减少团队的隐性分歧', summary: '把技术取舍写成可被讨论、复查和推翻的共同上下文。', href: '/articles/decision-records', date: '2026.08.12' },
+	{ title: 'AI 进入工作流之后，架构师要重新关注什么', summary: '模型能力之外，上下文、边界与验证机制才是系统可靠性的核心。', href: '/articles/ai-workflow', date: '2026.07.04' },
+];
+---
+
+<SiteLayout>
+	<section class="author-intro">
+		<div class="container">
+			<h1>你好，我是 Jayson Wu。</h1>
+			<p>一名架构师与产品工程负责人，关注实时系统、平台工程、领域建模，以及系统如何在真实约束下持续演进。</p>
+		</div>
+	</section>
+
+	<div class="container home-grid">
+		<section class="home-column writing-column">
+			<h2>最新文章</h2>
+			{articles.map((article) => (
+				<article class="home-article">
+					<time>{article.date}</time>
+					<h3><a href={article.href}>{article.title}</a></h3>
+					<p>{article.summary}</p>
+					<a class="more-link" href={article.href}>阅读全文</a>
+				</article>
+			))}
+			<a class="more-link all-writing" href="/articles">查看全部文章</a>
+		</section>
+
+		<section class="home-column">
+			<h2>关于我</h2>
+			<p>我有 5 年复杂业务系统架构设计与产品交付经验，参与过 AI 健康服务、企业级云平台、交易撮合、政企数字化和 SaaS 项目。</p>
+			<p>我相信架构的工作不是展示组件数量，而是识别约束、控制复杂度，并让技术决策能被团队持续验证。</p>
+			<p><a class="more-link" href="/resume">查看简历</a></p>
+
+			<h2 class="secondary-heading">关注方向</h2>
+			<ul class="plain-list">
+				<li>实时数据与事件驱动系统</li>
+				<li>领域建模与模块化单体</li>
+				<li>平台工程与可观测性</li>
+				<li>AI 工作流与人机协作</li>
+			</ul>
+		</section>
+
+		<section class="home-column profile-column">
+			<h2>合作与交流</h2>
+			<p>可围绕实时系统、服务演进、技术方案评审和工程效率建设交流经验。</p>
+			<p><a class="more-link" href="mailto:jaysonwu524@gmail.com">发送邮件</a></p>
+			<p><a class="more-link" href="https://github.com/jaysonwu524" target="_blank" rel="noreferrer">查看 GitHub</a></p>
+			<img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=720&q=80" alt="数据中心中的服务器网络设备" />
+			<h2 class="secondary-heading">项目案例</h2>
+			<p>RateHub、LAIFE AI 健康助手和 RegenBio-Cloud 的背景、约束与架构取舍会逐步整理在项目页中。</p>
+			<p><a class="more-link" href="/projects">查看项目</a></p>
+		</section>
+	</div>
+</SiteLayout>

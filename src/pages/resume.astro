@@ -1,0 +1,93 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+const experience = [
+	{
+		period: '2024.08 至今',
+		role: '研发高级主管',
+		company: 'Regenerative Bio',
+		detail: '从 0 到 1 搭建 IT 与数字化研发体系，主导需求评审、开发规范、分支发布、测试验收、上线回滚与 CI/CD 流程。建设统一认证授权、多租户、配置中心、文件存储、通知、日志监控和网关治理等平台底座，支撑 5 条业务线复用。',
+	},
+	{
+		period: '2022.04 至 2024.08',
+		role: '研发组长',
+		company: '重庆云链天诚数据科技有限公司',
+		detail: '负责政企数字化与区块链交易平台业务线的架构设计、研发管理和项目交付。主导行情聚合系统、交易所通用中台和多个 ToB / ToG 项目落地，建立 Code Review、技术培训、交付规范和项目复盘机制。',
+	},
+	{
+		period: '2021.05 至 2022.03',
+		role: 'IT 技术支持',
+		company: '科大讯飞股份有限公司',
+		detail: '负责智慧校园业务系统现场技术支持与运维保障，日均处理 10+ 技术工单，覆盖教学、考试、排课、账号权限、数据同步和高峰期保障。',
+	},
+];
+
+const projects = [
+	{ period: '2025.10 至今', role: '产品经理 & 架构师', name: 'LAIFE AI 健康助手', detail: '面向客户、经纪人、医生、健康管理师和 OEM 租户的 AI 健康服务平台。负责角色权限、健康数据资产、RAG / OCR / ASR 场景、AI 对话、钱包计费、分销返佣和 OEM SaaS 配置设计。' },
+	{ period: '2024.07 至今', role: '架构师', name: 'RegenBio-Cloud 企业级云服务', detail: '建设统一认证授权、多租户、网关、文件、通知、任务、报告生成与审批、样本管理和健康干预服务等平台能力，形成可复用的微服务工程体系。' },
+	{ period: '2023.05 至 2024.08', role: '架构师', name: 'SkyWalker CEX 多资产交易平台', detail: '主导交易中台与行情聚合系统建设。两周内统一接入 Binance、Finnhub、TwelveData 等行情源，使用 JDK 21、Netty 和标准化接口为下游项目提供行情服务，月度节省约 2,000 美元外部 API 成本。' },
+	{ period: '2022.04 至 2023.08', role: '全栈工程师', name: '校园智能用水 SaaS 平台', detail: '参与多租户、支付对账、订单分库分表和设备控制链路建设，平台服务 20+ 所高校，高峰期支撑约 100 QPS。' },
+];
+
+const skills = [
+	{ title: '架构与工程', body: 'Java / Spring Boot / Spring Cloud Alibaba / MyBatis / Netty / Dubbo / Seata / Docker / CI/CD' },
+	{ title: '数据与基础设施', body: 'MySQL / PostgreSQL / MongoDB / Redis / RocketMQ / RabbitMQ / Kafka / Nacos / XXL-JOB / Flyway' },
+	{ title: 'AI 与应用', body: 'Harness / LangChain / LangGraph / Milvus / MinerU / RAG / OCR / ASR / Agent 会话记忆与状态持久化' },
+	{ title: '前端与多端', body: 'React / Next.js / Umi Max / Vue 3 / Angular / Flutter / Taro / 微信小程序' },
+];
+---
+
+<SiteLayout title="简历 | Jayson Wu">
+	<div class="container">
+		<header class="page-hero">
+			<p class="eyebrow">ABOUT / RESUME</p>
+			<h1 class="section-title">Jayson Wu</h1>
+			<p>架构师 / 产品工程负责人，拥有 5 年复杂业务系统架构设计与产品交付经验，目标职位为技术经理。</p>
+			<p class="resume-contact">jaysonwu524@gmail.com · github.com/jaysonwu524 · 杭州</p>
+			<a class="more-link" href="/jayson-wu-resume.pdf" target="_blank" rel="noreferrer">下载 PDF 简历</a>
+		</header>
+
+		<section class="section">
+			<div class="resume-grid">
+				<aside class="resume-aside">
+					<h2>个人优势</h2>
+					<p>从业务规划、产品设计、技术架构到研发管理和上线交付，完整参与并主导过多个 0 到 1 平台型项目。</p>
+					<p>实践覆盖 AI 商业化应用、企业级 SaaS、泛医疗检测与实验室管理、CRM、政企数字化和交易撮合。</p>
+				</aside>
+				<div>
+					<div class="resume-block">
+						<h2>工作经历</h2>
+						{experience.map((item) => (
+							<div class="resume-item">
+								<time>{item.period}</time>
+								<div><h3>{item.role} · {item.company}</h3><p>{item.detail}</p></div>
+							</div>
+						))}
+					</div>
+
+					<div class="resume-block">
+						<h2>代表项目</h2>
+						{projects.map((item) => (
+							<div class="resume-item">
+								<time>{item.period}</time>
+								<div><h3>{item.name} · {item.role}</h3><p>{item.detail}</p></div>
+							</div>
+						))}
+					</div>
+
+					<div class="resume-block">
+						<h2>技术栈</h2>
+						{skills.map((skill) => (
+							<div class="resume-item"><time>{skill.title}</time><div><p>{skill.body}</p></div></div>
+						))}
+					</div>
+
+					<div class="resume-block">
+						<h2>教育与证书</h2>
+						<div class="resume-item"><time>2018 至 2022</time><div><h3>重庆财经学院 · 空间信息与数字技术 · 本科</h3><p>程序员技术资格 · 驾驶证 C1</p></div></div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+</SiteLayout>

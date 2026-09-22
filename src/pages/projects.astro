@@ -1,0 +1,36 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+const projects = [
+	{ id: 'platform', title: '复杂业务平台', category: '领域建模 · 架构治理', description: '从混乱的流程和边界开始，建立可被团队共同理解、共同演进的平台骨架。', tags: ['Domain model', 'Platform', 'Governance'], featured: true },
+	{ id: 'data', title: '数据与智能基础设施', category: '数据产品 · 平台工程', description: '关注数据从产生到被使用的完整路径，让基础设施真正靠近业务决策。', tags: ['Data', 'Observability', 'Enablement'], featured: false },
+	{ id: 'ai', title: 'AI 工作流实验', category: 'Agent · 交互原型', description: '把模型能力放回真实工作流中，验证哪些环节值得自动化，哪些判断必须留给人。', tags: ['AI', 'Agent', 'Prototype'], featured: false },
+	{ id: 'open', title: '开放式技术笔记', category: '写作 · 教学 · 分享', description: '将项目中的决策、失败与复盘整理成可复用的公共知识。', tags: ['Writing', 'Learning', 'Community'], featured: false },
+];
+---
+
+<SiteLayout title="项目作品 | Jayson Wu">
+	<div class="container">
+		<header class="page-hero">
+			<p class="eyebrow">SELECTED WORK</p>
+			<h1 class="section-title">用项目说明，<br />我如何做判断。</h1>
+			<p>这里不是项目清单，而是架构决策的切片。真实案例会逐步补充，先保留结构与表达方式。</p>
+		</header>
+
+		<section class="section">
+			<div class="project-grid">
+				{projects.map((project) => (
+					<article id={project.id} class:list={[{ featured: project.featured }, 'project-card']}>
+						<div>
+							<p class="eyebrow">{project.category}</p>
+							<h2>{project.title}</h2>
+							<p>{project.description}</p>
+							<div class="tag-row">{project.tags.map((tag) => <span class="tag">{tag}</span>)}</div>
+						</div>
+						{project.featured && <div class="project-visual" aria-label="服务器基础设施的项目视觉"></div>}
+					</article>
+				))}
+			</div>
+		</section>
+	</div>
+</SiteLayout>
