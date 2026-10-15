@@ -1,0 +1,173 @@
+/* Homepage compositions share the editorial identity with archive and reading pages. */
+.home-page {
+  --hero-name-size: clamp(3rem, 6.2vw, 5rem);
+  --hero-portrait-size: 224px;
+  --home-heading-size: 1.5rem;
+  --home-feature-size: clamp(1.5rem, 2.3vw, 1.875rem);
+  --home-summary-size: var(--text-small);
+  --home-section-gap: var(--space-6);
+  --home-label-width: 160px;
+  --home-ease: 240ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Name and portrait share the first moment; supporting copy stays compact. */
+.home-page .author-intro {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) var(--hero-portrait-size);
+  gap: var(--space-6);
+  padding-block: var(--space-6) var(--space-7);
+}
+.home-page .author-intro h1 {
+  margin-bottom: var(--space-4);
+  font-size: var(--hero-name-size);
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+}
+.home-page .author-intro p { margin-bottom: var(--space-4); }
+.intro-statement, .intro-description { display: block; }
+.intro-statement { color: var(--ink); font-size: var(--text-section); }
+.intro-description { margin-top: var(--space-1); font-size: var(--text-body); }
+.home-page .profile-avatar {
+  width: var(--hero-portrait-size);
+  height: var(--hero-portrait-size);
+}
+.home-page .intro-links { gap: var(--space-2); }
+.home-page .profile-link {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-width: 112px;
+  border-radius: var(--radius);
+  transition: color var(--home-ease), border-color var(--home-ease), transform var(--home-ease);
+}
+.home-page .profile-link::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  background: var(--accent);
+  transform: translateY(101%);
+  transition: transform var(--home-ease);
+}
+.home-page .profile-link:hover, .home-page .profile-link:focus-visible { background: transparent; }
+.home-page .profile-link:hover::before, .home-page .profile-link:focus-visible::before { transform: translateY(0); }
+.home-page .profile-link:active { opacity: 1; transform: translateY(1px); }
+
+/* About stays first, with a quiet margin title and a comfortable reading width. */
+.home-page .home-about {
+  grid-template-columns: var(--home-label-width) minmax(0, 1fr);
+  gap: var(--space-5);
+  padding-block: var(--home-section-gap);
+}
+.home-page .section-label h2, .home-section-heading h2 {
+  margin: 0;
+  font: 500 var(--home-heading-size)/1.5 var(--display);
+  letter-spacing: 0.045em;
+}
+.home-page .about-content { max-width: var(--reading-width); }
+.home-page .about-content p { line-height: 2; }
+.home-page .about-content p:first-child { color: var(--ink); }
+.home-page .domain-tags { margin-top: var(--space-4); }
+.home-page .domain-tag { color: var(--accent); }
+.home-page .domain-tag + .domain-tag::before { margin-inline: var(--space-3); }
+
+.home-section { border-top: 1px solid var(--line); padding-block: var(--home-section-gap); }
+.home-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+.home-section-heading .more-link { color: var(--ink-soft); }
+.home-section-heading .more-link:hover { color: var(--accent); }
+
+/* The highest-ranked article leads. The other two form a compact reading list. */
+.home-page .featured-writing {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  column-gap: var(--space-6);
+}
+.home-page .featured-writing .article-card { padding-block: var(--space-4); }
+.home-page .featured-writing .article-card:first-child {
+  grid-row: span 2;
+  align-content: start;
+  padding: var(--space-4);
+  background: var(--surface-soft);
+  border-radius: var(--radius);
+}
+.home-page .featured-writing .article-card:nth-child(2) { padding-top: 0; border-top: 0; }
+.home-page .featured-writing .article-card:last-child { padding-bottom: 0; }
+.home-page .featured-writing h3 { font-size: var(--text-section); line-height: 1.7; }
+.home-page .featured-writing .article-card:first-child h3 {
+  margin-bottom: var(--space-3);
+  font-family: var(--display);
+  font-size: var(--home-feature-size);
+  line-height: 1.65;
+}
+.home-page .featured-writing p { font-size: var(--home-summary-size); line-height: 1.95; }
+.home-page .featured-writing .article-card:first-child .article-card-meta { margin-top: var(--space-4); color: var(--ink-soft); }
+.home-page .article-arrow { transition: color var(--home-ease), transform var(--home-ease); }
+.home-page .article-card:active { opacity: 1; }
+
+/* Projects read as business cases, with category, identity and summary aligned. */
+.home-page .project-showcase .article-card {
+  grid-template-columns: var(--home-label-width) minmax(0, 1fr) 20px;
+  column-gap: var(--space-5);
+  padding-block: var(--space-5);
+}
+.home-page .project-showcase .article-card:first-child { padding-top: 0; }
+.home-page .project-showcase .article-card:last-child { padding-bottom: 0; }
+.showcase-category { padding-top: 6px; color: var(--ink-muted); font-size: var(--text-small); }
+.home-page .project-showcase h3 { margin-bottom: var(--space-2); }
+.showcase-name { display: block; font-size: var(--text-title); letter-spacing: -0.02em; }
+.showcase-purpose { display: block; margin-top: 2px; font-size: var(--text-body); font-weight: 400; color: var(--ink-soft); }
+.home-page .project-showcase p { max-width: 45em; font-size: var(--text-body); line-height: 1.9; }
+.home-page .project-showcase .article-card-meta { margin-top: var(--space-2); }
+.home-projects { padding-bottom: var(--space-7); }
+
+@media (max-width: 1024px) {
+  .home-page { --hero-portrait-size: 192px; --home-label-width: 128px; }
+  .home-page .author-intro { gap: var(--space-5); }
+  .home-page .featured-writing { column-gap: var(--space-4); }
+}
+
+@media (max-width: 767px) {
+  .home-page { --hero-name-size: 3rem; --hero-portrait-size: 128px; --home-section-gap: var(--space-5); --home-heading-size: 1.3125rem; --home-summary-size: 0.875rem; }
+  .home-page .author-intro { grid-template-columns: minmax(0, 1fr) var(--hero-portrait-size); gap: var(--space-3); padding-block: var(--space-5); }
+  .home-page .author-intro h1 { margin-bottom: var(--space-3); }
+  .intro-statement { font-size: var(--text-lead); }
+  .intro-description { font-size: var(--text-small); }
+  .home-page .home-about { grid-template-columns: 1fr; gap: var(--space-3); }
+  .home-section-heading { margin-bottom: var(--space-3); }
+  .home-page .featured-writing { grid-template-columns: 1fr; gap: var(--space-4); }
+  .home-page .featured-writing .article-card:first-child { grid-row: auto; }
+  .home-page .featured-writing .article-card:nth-child(2) { padding-block: 0; }
+  .home-page .featured-writing .article-card:last-child { padding-top: var(--space-4); }
+  .home-page .project-showcase .article-card { grid-template-columns: minmax(0, 1fr) 20px; gap: var(--space-1) var(--space-2); padding-block: var(--space-4); }
+  .showcase-category { grid-column: 1; padding: 0; font-size: var(--text-meta); }
+  .home-page .project-showcase .article-card-content { grid-column: 1; }
+  .home-page .project-showcase .article-arrow { grid-column: 2; grid-row: 2; }
+  .home-page .project-showcase p { font-size: var(--text-small); }
+  .home-projects { padding-bottom: var(--space-6); }
+}
+
+@media (max-width: 480px) {
+  .home-page { --hero-name-size: 3.25rem; --hero-portrait-size: 104px; }
+  .home-page .author-intro { grid-template-columns: 1fr; position: relative; }
+  .home-page .profile-avatar { position: absolute; grid-row: auto; top: var(--space-5); right: 0; width: 64px; height: 64px; }
+  .home-page .author-intro h1 { padding-right: 72px; font-size: clamp(2.375rem, 10.5vw, 3rem); line-height: 1.4; }
+  .home-page .author-intro p { margin-bottom: var(--space-3); }
+  .home-page .domain-tag + .domain-tag::before { margin-inline: var(--space-2); }
+  .home-page .featured-writing .article-card:first-child { padding: var(--space-3); }
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-page .profile-avatar { filter: grayscale(1) invert(1); mix-blend-mode: screen; opacity: 0.85; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page .profile-link::before { transform: none; opacity: 0; }
+  .home-page .profile-link:hover::before, .home-page .profile-link:focus-visible::before { opacity: 1; }
+  .home-page .profile-link:active { transform: none; }
+}

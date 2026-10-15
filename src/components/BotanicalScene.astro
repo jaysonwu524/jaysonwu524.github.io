@@ -1,0 +1,268 @@
+---
+const petals = Array.from({ length: 7 }, (_, index) => index * (360 / 7));
+const dandelionSeeds = Array.from({ length: 23 }, (_, index) => ({
+	rotation: index * (360 / 23) + (index % 3 - 1) * 2,
+	scale: [1, 0.9, 1.06, 0.95][index % 4],
+	flight: index === 1 ? 'seed-flight-first' : index === 4 ? 'seed-flight-second' : index === 21 ? 'seed-flight-third' : '',
+}));
+---
+
+<!-- The sticky stage grows with the page and comes to rest at the footer edge. -->
+<div class="site-botanicals" aria-hidden="true">
+	<div class="botanical-stage">
+		<svg class="botanical botanical-flower" viewBox="0 0 160 360" fill="none" focusable="false">
+			<g class="flower-sway">
+				<path d="M80 354C77 344 78 337 80 330" />
+				<path class="growing-stem growth-stroke" pathLength="1" d="M80 338C77 310 83 290 79 264C73 233 84 210 80 184C75 153 76 122 80 92" />
+				<g class="seed-leaves">
+					<path d="M79 338C68 338 59 332 59 323C69 324 77 329 79 338ZM80 336C82 325 91 318 100 319C99 329 90 335 80 336Z" />
+				</g>
+				<g class="plant-leaf flower-leaf-lower">
+					<path d="M79 285C59 283 40 264 37 242C59 245 76 263 79 285Z" />
+					<path class="leaf-vein" d="M79 285C66 270 54 257 44 250" />
+				</g>
+				<g class="plant-leaf flower-leaf-middle">
+					<path d="M79 225C100 224 121 203 125 180C102 184 83 202 79 225Z" />
+					<path class="leaf-vein" d="M79 225C93 211 107 196 118 188" />
+				</g>
+				<g class="plant-leaf flower-leaf-upper">
+					<path d="M78 166C62 161 48 145 47 128C65 134 76 150 78 166Z" />
+					<path class="leaf-vein" d="M78 166L53 136" />
+				</g>
+				<g class="flower-bud">
+					<path d="M80 96C69 86 69 70 80 65C91 70 91 86 80 96Z" />
+					<path d="M80 95C82 83 80 75 80 68M80 96C72 94 67 89 66 82M80 96C88 94 93 89 94 82" />
+				</g>
+				<g class="flower-blossom">
+					{petals.map((rotation) => (
+						<g transform={`rotate(${rotation} 80 82)`}>
+							<path d="M80 80C67 71 66 48 75 42C86 35 97 59 80 80Z" />
+							<path class="petal-vein" d="M80 76C79 64 78 55 78 49" />
+						</g>
+					))}
+					<circle class="flower-center" cx="80" cy="82" r="7" />
+					<path class="petal-vein" d="M77 80L78 84M82 79L83 83M80 86L82 86" />
+				</g>
+			</g>
+			<path class="botanical-ground" d="M62 358C75 355 85 359 96 356" />
+		</svg>
+		<div class="botanical-right-rail">
+		<svg class="botanical botanical-dandelion" width="142" height="254" viewBox="0 0 190 340" fill="none" focusable="false">
+			<g class="dandelion-sway">
+				<path d="M85 335C83 327 84 318 86 312" />
+				<path class="dandelion-growing-stem growth-stroke" pathLength="1" d="M85 319C78 284 83 246 88 212C96 166 105 125 98 88" />
+				<g class="plant-leaf dandelion-leaf-left">
+					<path d="M85 326C68 316 47 302 34 273L49 278L44 260L60 271L57 252C75 271 85 299 85 326Z" />
+					<path class="leaf-vein" d="M85 326C71 303 60 284 49 270" />
+				</g>
+				<g class="plant-leaf dandelion-leaf-right">
+					<path d="M85 326C104 316 124 298 135 267L120 275L123 257L109 270L110 253C94 273 87 298 85 326Z" />
+					<path class="leaf-vein" d="M85 326C103 302 115 284 122 270" />
+				</g>
+				<g class="dandelion-crown">
+					{dandelionSeeds.map(({ rotation, scale, flight }) => (
+						<g class:list={['dandelion-seed', flight]}>
+							<g transform={`rotate(${rotation} 98 88)`}>
+								<g transform={`translate(98 88) scale(${scale})`}>
+									<path class="dandelion-filament" d="M0 -5L0 -33" />
+									<path class="dandelion-tuft" d="M0 -33Q-5 -39 -10 -39M0 -33Q-5 -42 -6 -43M0 -33L-2 -45M0 -33Q2 -40 3 -44M0 -33Q5 -40 8 -41M0 -33Q7 -37 11 -37" />
+									<path class="dandelion-achene" d="M0 -4L0 -8" />
+								</g>
+							</g>
+						</g>
+					))}
+					<circle class="dandelion-core" cx="98" cy="88" r="5" />
+					<path class="dandelion-receptacle" d="M92 92Q98 101 104 92M95 88L100 90M97 85L99 86" />
+				</g>
+			</g>
+			<path class="botanical-ground" d="M67 338C80 335 90 339 104 336" />
+		</svg>
+		</div>
+		<div class="butterfly-arrival">
+			<div class="butterfly-flight">
+				<svg class="butterfly" viewBox="0 0 54 42" fill="none" focusable="false">
+					<g class="butterfly-wing">
+						<path d="M27 22C19 16 15 3 7 5C1 8 5 20 24 23C12 23 7 27 10 33C14 39 22 31 27 23" />
+						<path d="M10 10C15 14 18 18 24 21M14 30C18 27 21 25 25 23" />
+					</g>
+					<g class="butterfly-wing">
+						<path d="M27 22C35 16 39 3 47 5C53 8 49 20 30 23C42 23 47 27 44 33C40 39 32 31 27 23" />
+						<path d="M44 10C39 14 36 18 30 21M40 30C36 27 33 25 29 23" />
+					</g>
+					<path d="M27 18C24 22 26 29 27 32C28 29 30 22 27 18ZM26 18L22 13M28 18L32 13" />
+				</svg>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	.site-botanicals {
+		--botanical-stroke: 1.2;
+		--botanical-flower-width: 132px;
+		--botanical-dandelion-width: 142px;
+		--botanical-gutter: max(var(--space-3), calc((100vw - var(--max-width)) / 4));
+		--flower-head-height: calc(var(--botanical-flower-width) * 278 / 160);
+		position: absolute;
+		top: calc(-1 * var(--header-height));
+		right: 0;
+		bottom: 0;
+		left: 0;
+		display: none;
+		pointer-events: none;
+		user-select: none;
+		color: var(--ink);
+	}
+	.botanical-stage { position: sticky; top: 0; height: min(100dvh, 100%); }
+	.botanical {
+		position: absolute;
+		bottom: 0;
+		display: block;
+		height: auto;
+		overflow: visible;
+		stroke: currentColor;
+		stroke-width: var(--botanical-stroke);
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		opacity: 0.65;
+	}
+	.botanical-flower {
+		width: var(--botanical-flower-width);
+		left: calc(var(--botanical-gutter) - var(--botanical-flower-width) / 2);
+	}
+	/* Keep the entire right-hand illustration, including drifting seeds, outside the content. */
+	.botanical-right-rail {
+		position: absolute;
+		inset: 0 0 0 auto;
+		width: max(0px, calc((100% - var(--max-width)) / 2 - var(--space-3)));
+		overflow: clip;
+		pointer-events: none;
+	}
+	.botanical-dandelion {
+		width: min(var(--botanical-dandelion-width), calc(100% - var(--space-2)));
+		max-width: 100%;
+		left: auto;
+		right: max(var(--space-2), calc(var(--botanical-gutter) - var(--botanical-dandelion-width) / 2));
+	}
+	.flower-sway { transform-origin: 80px 354px; }
+	.dandelion-sway { transform-origin: 85px 335px; }
+	.seed-leaves { transform-origin: 80px 338px; }
+	.flower-leaf-lower { transform-origin: 79px 285px; }
+	.flower-leaf-middle { transform-origin: 79px 225px; }
+	.flower-leaf-upper { transform-origin: 78px 166px; }
+	.dandelion-leaf-left, .dandelion-leaf-right { transform-origin: 85px 326px; }
+	.dandelion-crown, .dandelion-seed { transform-origin: 98px 88px; }
+	.dandelion-filament { stroke-width: 0.8; opacity: 0.65; }
+	.dandelion-tuft { stroke-width: 0.85; }
+	.dandelion-achene { stroke-width: 1.4; }
+	.dandelion-core { fill: var(--bg); }
+	.seed-flight-first { --seed-drift-x: 37px; --seed-drift-y: -106px; --seed-tilt: 24deg; }
+	.seed-flight-second { --seed-drift-x: 54px; --seed-drift-y: -74px; --seed-tilt: 35deg; }
+	.seed-flight-third { --seed-drift-x: -33px; --seed-drift-y: -138px; --seed-tilt: -22deg; }
+	.flower-bud, .flower-blossom { transform-origin: 80px 92px; }
+	.flower-bud { opacity: 0; }
+	.flower-center { fill: var(--bg); }
+	.leaf-vein, .petal-vein, .botanical-ground { opacity: 0.5; }
+	.butterfly-arrival {
+		position: absolute;
+		left: calc(var(--botanical-gutter) + var(--space-1));
+		bottom: calc(var(--flower-head-height) + var(--space-1));
+		width: 42px;
+		height: calc(42px * 42 / 54);
+		opacity: 0.75;
+	}
+	.butterfly-flight { width: 100%; height: 100%; }
+	.butterfly {
+		display: block;
+		width: 100%;
+		height: 100%;
+		stroke: currentColor;
+		stroke-width: 1.1;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	.butterfly-wing { transform-origin: 27px 22px; }
+
+	@media (min-width: 1440px) { .site-botanicals { display: block; } }
+	/* A mature, still plant is the fallback for reduced motion and older browsers. */
+	@media (min-width: 1440px) and (prefers-reduced-motion: no-preference) {
+		@supports (animation-timeline: scroll()) {
+			.growth-stroke { stroke-dasharray: 1; animation: stem-grow linear both; }
+			.seed-leaves { animation: seed-unfurl linear both; }
+			.plant-leaf { animation: leaf-unfurl ease-out both; }
+			.flower-bud { animation: bud-form linear both; }
+			.flower-blossom { animation: flower-open ease-in-out both; }
+			.butterfly-arrival { animation: butterfly-approach ease-in-out both; }
+			.dandelion-crown { animation: dandelion-open ease-out both; }
+			.seed-flight-first, .seed-flight-second, .seed-flight-third { animation: seed-depart ease-in-out both; }
+			/* Keep timeline longhands separate so CSS optimization preserves them. */
+			.growth-stroke, .seed-leaves, .plant-leaf, .flower-bud, .flower-blossom, .butterfly-arrival,
+			.dandelion-crown, .seed-flight-first, .seed-flight-second, .seed-flight-third {
+				animation-timeline: scroll(root block);
+			}
+			.growing-stem { animation-range: 0% 56%; }
+			.dandelion-growing-stem { animation-range: 4% 52%; }
+			.seed-leaves { animation-range: 0% 16%; }
+			.flower-leaf-lower { animation-range: 12% 30%; }
+			.flower-leaf-middle { animation-range: 27% 45%; }
+			.flower-leaf-upper { animation-range: 40% 58%; }
+			.dandelion-leaf-left { animation-range: 6% 28%; }
+			.dandelion-leaf-right { animation-range: 14% 36%; }
+			.dandelion-crown { animation-range: 52% 72%; }
+			.seed-flight-first { animation-range: 78% 98%; }
+			.seed-flight-second { animation-range: 84% 100%; }
+			.seed-flight-third { animation-range: 88% 100%; }
+			.flower-bud { animation-range: 56% 70%; }
+			.flower-blossom { animation-range: 58% 76%; }
+			.butterfly-arrival { animation-range: 74% 88%; }
+			.flower-sway { animation: botanical-sway 12s ease-in-out -3s infinite; }
+			.dandelion-sway { animation: botanical-sway 14s ease-in-out -7s infinite reverse; }
+			.butterfly-flight { animation: butterfly-orbit 10s ease-in-out -2s infinite; }
+			.butterfly-wing { animation: butterfly-flutter 480ms ease-in-out infinite alternate; }
+		}
+	}
+	@keyframes stem-grow { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+	@keyframes seed-unfurl { from { transform: scale(0.65); } to { transform: scale(1); } }
+	@keyframes leaf-unfurl {
+		from { opacity: 0; transform: scale(0.08) rotate(-18deg); }
+		to { opacity: 1; transform: scale(1) rotate(0deg); }
+	}
+	@keyframes dandelion-open {
+		from { opacity: 0; transform: scale(0.12) rotate(-8deg); }
+		to { opacity: 1; transform: scale(1) rotate(0deg); }
+	}
+	@keyframes seed-depart {
+		0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+		40% { opacity: 0.9; transform: translate(calc(var(--seed-drift-x) * 0.35), calc(var(--seed-drift-y) * 0.45)) rotate(calc(var(--seed-tilt) * -0.25)); }
+		75% { opacity: 0.7; transform: translate(calc(var(--seed-drift-x) * 0.85), calc(var(--seed-drift-y) * 0.8)) rotate(var(--seed-tilt)); }
+		100% { opacity: 0; transform: translate(var(--seed-drift-x), var(--seed-drift-y)) rotate(calc(var(--seed-tilt) * 0.6)); }
+	}
+	@keyframes bud-form {
+		0% { opacity: 0; transform: scale(0.1); }
+		35%, 65% { opacity: 1; transform: scale(1); }
+		100% { opacity: 0; transform: scale(0.7); }
+	}
+	@keyframes flower-open {
+		0% { opacity: 0; transform: scale(0.12) rotate(-16deg); }
+		25% { opacity: 1; transform: scale(0.3) rotate(-10deg); }
+		100% { opacity: 1; transform: scale(1) rotate(0deg); }
+	}
+	@keyframes butterfly-approach {
+		0% { opacity: 0; transform: translate(-78px, 44px) rotate(-18deg); }
+		25% { opacity: 0.65; transform: translate(-48px, 6px) rotate(-6deg); }
+		65% { opacity: 0.75; transform: translate(-12px, -14px) rotate(10deg); }
+		100% { opacity: 0.75; transform: translate(0, 0) rotate(0deg); }
+	}
+	@keyframes botanical-sway {
+		0%, 100% { transform: rotate(-1deg); }
+		50% { transform: rotate(1deg); }
+	}
+	@keyframes butterfly-orbit {
+		0%, 100% { transform: translate(-20px, 2px) rotate(-12deg); }
+		25% { transform: translate(8px, -20px) rotate(9deg); }
+		50% { transform: translate(22px, 6px) rotate(14deg); }
+		75% { transform: translate(-1px, 26px) rotate(-7deg); }
+	}
+	@keyframes butterfly-flutter { from { transform: scaleX(1); } to { transform: scaleX(0.4); } }
+	@media print { .site-botanicals { display: none; } }
+</style>

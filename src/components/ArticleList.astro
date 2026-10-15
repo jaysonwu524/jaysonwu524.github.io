@@ -1,0 +1,32 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { ArrowUpRight } from '@lucide/astro';
+import { contentSlug, getLocale, localePath, messages } from '../i18n/ui';
+
+interface Props {
+	articles: CollectionEntry<'articles'>[];
+	headingLevel?: 'h2' | 'h3';
+	variant?: 'list' | 'featured' | 'archive';
+}
+
+const { articles, headingLevel: Heading = 'h2', variant = 'list' } = Astro.props;
+const locale = getLocale(Astro.url.pathname);
+const t = messages[locale];
+---
+
+<div class:list={['article-list', { 'featured-writing': variant === 'featured', 'writing-archive': variant === 'archive' }]}>
+	{articles.length ? articles.map((article) => (
+		<a class="article-card" href={localePath(locale, `articles/${contentSlug(article.id)}`)}>
+			{variant === 'archive' && <div class="writing-topic"><span>{article.data.tags[1] ?? article.data.tags[0] ?? t.engineering}</span><span>{article.data.readingTime}</span></div>}
+			<div class="article-card-content">
+				<Heading>{article.data.title}</Heading>
+				<p>{article.data.description}</p>
+				<div class="article-card-meta">
+					{variant !== 'archive' && <span>{article.data.readingTime}</span>}
+					<span>{article.data.tags.filter((_, index) => variant !== 'archive' || index !== 1).join(' / ')}</span>
+				</div>
+			</div>
+			<span class="article-arrow" aria-hidden="true"><ArrowUpRight class="ui-icon" aria-hidden="true" focusable="false" /></span>
+		</a>
+	)) : <p class="empty-state">{t.emptyArticles}</p>}
+</div>

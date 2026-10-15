@@ -1,0 +1,42 @@
+---
+import { ArrowUp, ArrowUpRight, Mail } from '@lucide/astro';
+import { getLocale, messages } from '../i18n/ui';
+
+interface Props {
+	navItems: { href: string; label: string }[];
+}
+
+const { navItems } = Astro.props;
+const t = messages[getLocale(Astro.url.pathname)];
+const copyrightYear = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+	<div class="header-retract-trigger" data-header-retract aria-hidden="true"></div>
+	<div class="footer-inner">
+		<div class="footer-main">
+			<div class="footer-identity">
+				<p class="footer-name">jaysonwu524.com</p>
+				<p class="footer-description">{t.footerDescription}</p>
+			</div>
+			<nav class="footer-group" aria-labelledby="footer-nav-title">
+				<h2 class="footer-heading" id="footer-nav-title">{t.explore}</h2>
+				<div class="footer-nav-links">
+					{navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+				</div>
+			</nav>
+			<div class="footer-group">
+				<h2 class="footer-heading">{t.contact}</h2>
+				<div class="footer-social-links">
+					<a href="https://github.com/jaysonwu524" target="_blank" rel="noopener noreferrer">GitHub<ArrowUpRight class="ui-icon" aria-hidden="true" focusable="false" /></a>
+					<a href="https://blog.csdn.net/CatalpaWoo" target="_blank" rel="noopener noreferrer">CSDN<ArrowUpRight class="ui-icon" aria-hidden="true" focusable="false" /></a>
+				</div>
+				<a class="footer-email" href="mailto:jaysonwu524@gmail.com"><Mail class="ui-icon" aria-hidden="true" focusable="false" /><span>jaysonwu524@gmail.com</span></a>
+			</div>
+		</div>
+		<div class="footer-bottom">
+			<p class="footer-copyright">Copyright © {copyrightYear} Jayson Wu. <span>{t.rights}</span></p>
+			<a class="footer-top-link" href="#site-top">{t.top}<ArrowUp class="ui-icon" aria-hidden="true" focusable="false" /></a>
+		</div>
+	</div>
+</footer>

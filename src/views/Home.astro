@@ -1,0 +1,63 @@
+---
+import { localizedCollection } from '../i18n/content';
+import { getLocale, localePath, messages } from '../i18n/ui';
+import { Image } from 'astro:assets';
+import avatar from '../../public/jayson-wu-avatar.jpg';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import ArticleList from '../components/ArticleList.astro';
+import ProjectList from '../components/ProjectList.astro';
+import MoreLink from '../components/MoreLink.astro';
+import '../styles/home.css';
+
+const locale = getLocale(Astro.url.pathname);
+const t = messages[locale];
+const articles = (await localizedCollection('articles', locale))
+	.sort((a, b) => b.data.editorialScore - a.data.editorialScore)
+	.slice(0, 3);
+const projects = (await localizedCollection('projects', locale))
+	.sort((a, b) => a.data.order - b.data.order)
+	.slice(0, 3);
+---
+
+<SiteLayout>
+	<div class="container home-page">
+		<section class="author-intro" aria-labelledby="intro-title">
+			<div class="intro-copy">
+				<h1 id="intro-title">Jayson Wu</h1>
+				<p><span class="intro-statement">{t.statement}</span><span class="intro-description">{t.intro}</span></p>
+				<div class="intro-links">
+					<a class="profile-link" href="https://github.com/jaysonwu524" target="_blank" rel="noopener noreferrer">GitHub</a>
+					<a class="profile-link" href="https://blog.csdn.net/CatalpaWoo" target="_blank" rel="noopener noreferrer">CSDN</a>
+				</div>
+			</div>
+			<Image class="profile-avatar" src={avatar} alt={t.avatar} width={224} height={224} widths={[64, 128, 224, 448]} sizes="(max-width: 480px) 64px, (max-width: 767px) 128px, (max-width: 1024px) 192px, 224px" format="webp" loading="eager" fetchpriority="high" />
+		</section>
+
+		<section class="editorial-section home-about" aria-labelledby="about-title">
+			<div class="section-label"><h2 id="about-title">{t.about}</h2></div>
+			<div class="about-content">
+				<p>{t.aboutFirst}</p>
+				<p>{t.aboutSecond}</p>
+				<ul class="tag-row domain-tags" aria-label={t.domains}>
+					{t.domainTags.map((tag) => <li class="tag domain-tag">{tag}</li>)}
+				</ul>
+			</div>
+		</section>
+
+		<section class="home-section home-writing" aria-labelledby="writing-title">
+			<div class="home-section-heading">
+				<h2 id="writing-title">{t.selectedArticles}</h2>
+				<MoreLink href={localePath(locale, 'articles')}>{t.allArticles}</MoreLink>
+			</div>
+			<ArticleList articles={articles} headingLevel="h3" variant="featured" />
+		</section>
+
+		<section class="home-section home-projects" aria-labelledby="projects-title">
+			<div class="home-section-heading">
+				<h2 id="projects-title">{t.cases}</h2>
+				<MoreLink href={localePath(locale, 'projects')}>{t.allProjects}</MoreLink>
+			</div>
+			<ProjectList projects={projects} headingLevel="h3" variant="showcase" />
+		</section>
+	</div>
+</SiteLayout>

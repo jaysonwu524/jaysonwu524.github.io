@@ -1,64 +1,61 @@
 ---
 import '../styles/global.css';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import BotanicalScene from '../components/BotanicalScene.astro';
+import { getLocale, languageTags, localePath, locales, messages, ogLocales, unlocalizedPath } from '../i18n/ui';
 
 interface Props {
 	title?: string;
 	description?: string;
 }
 
-const {
-	title = 'Jayson Wu / Architecture practice',
-	description = 'Jayson Wu personal site covering architecture practice, projects, and continuous learning.',
-} = Astro.props;
+const locale = getLocale(Astro.url.pathname);
+const t = messages[locale];
+const { title = t.siteTitle, description = t.siteDescription } = Astro.props;
+const path = unlocalizedPath(Astro.url.pathname);
 
 const navItems = [
-	{ href: '/', label: '首页' },
-	{ href: '/projects', label: '项目' },
-	{ href: '/articles', label: '文章' },
-	{ href: '/resume', label: '简历' },
+	{ href: localePath(locale), label: t.home },
+	{ href: localePath(locale, 'projects'), label: t.projects },
+	{ href: localePath(locale, 'articles'), label: t.articles },
+	{ href: localePath(locale, 'resume'), label: t.resume },
 ];
 
-const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const currentPath = localePath(locale, path);
+const canonical = new URL(currentPath, Astro.site ?? Astro.url.origin);
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={languageTags[locale]}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+		{locales.map((item) => <link rel="alternate" hreflang={languageTags[item]} href={new URL(localePath(item, path), Astro.site ?? Astro.url.origin)} />)}
+		<link rel="alternate" hreflang="x-default" href={new URL(localePath('zh-cn', path), Astro.site ?? Astro.url.origin)} />
+		<meta property="og:locale" content={ogLocales[locale]} />
+		{locales.filter((item) => item !== locale).map((item) => <meta property="og:locale:alternate" content={ogLocales[item]} />)}
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:type" content="website" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<title>{title}</title>
 	</head>
 	<body>
-		<div class="site-shell">
-			<header class="site-header">
-				<a class="brand" href="/" aria-label="回到首页">
-					<span class="brand-mark" aria-hidden="true">JW</span>
-					<span class="brand-name">Jayson Wu</span>
-				</a>
-				<nav class="site-nav" aria-label="主导航">
-					{navItems.map((item) => (
-						<a class:list={[{ active: currentPath === item.href }, 'nav-link']} href={item.href}>
-							{item.label}
-						</a>
-					))}
-				</nav>
-			</header>
+		<a class="skip-link" href="#main-content">{t.skip}</a>
+		<div class="site-shell" id="site-top">
+			<SiteHeader navItems={navItems} currentPath={currentPath} />
 
-			<main>
+			<main id="main-content" tabindex="-1">
+				<BotanicalScene />
 				<slot />
 			</main>
 
-			<footer class="site-footer">
-				<p>© {new Date().getFullYear()} Jayson Wu. 写关于软件架构、实时系统与工程实践。</p>
-				<div class="footer-meta">
-					<a href="https://github.com/jaysonwu524" target="_blank" rel="noreferrer">GitHub</a>
-					<a href="mailto:jaysonwu524@gmail.com">Gmail</a>
-					<a href="/articles">Writing</a>
-				</div>
-			</footer>
+			<SiteFooter navItems={navItems} />
 		</div>
 	</body>
 </html>

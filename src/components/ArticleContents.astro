@@ -1,0 +1,15 @@
+---
+import { getLocale, messages } from '../i18n/ui';
+interface Props {
+	headings: { slug: string; text: string }[];
+}
+
+const { headings } = Astro.props;
+const t = messages[getLocale(Astro.url.pathname)];
+---
+
+<nav class="writing-contents" aria-label={t.chapters}>
+	<ol>
+		{headings.map((heading) => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}
+	</ol>
+</nav>

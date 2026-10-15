@@ -1,0 +1,19 @@
+---
+import { ArrowLeft, ArrowRight } from '@lucide/astro';
+
+interface Props {
+	href: string;
+	class?: string;
+	target?: string;
+	rel?: string;
+	back?: boolean;
+}
+
+const { href, class: className, target, rel, back = false } = Astro.props;
+---
+
+<a class:list={['more-link', className, { 'more-link-back': back }]} href={href} target={target} rel={rel}>
+	{back && <ArrowLeft class="ui-icon link-arrow" aria-hidden="true" focusable="false" />}
+	<slot />
+	{!back && <ArrowRight class="ui-icon link-arrow" aria-hidden="true" focusable="false" />}
+</a>

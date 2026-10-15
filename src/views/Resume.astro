@@ -1,0 +1,150 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import MoreLink from '../components/MoreLink.astro';
+import { getLocale, localePath, messages } from '../i18n/ui';
+import { resumes } from '../i18n/resume';
+
+const locale = getLocale(Astro.url.pathname);
+const t = messages[locale];
+const { experience, skills, strengths } = resumes[locale];
+---
+
+<SiteLayout title={`${t.resume} | Jayson Wu`}>
+	<div class="container resume-page">
+		<header class="resume-hero">
+			<div class="resume-title-block">
+				<p class="resume-eyebrow">{t.personalResume}</p>
+				<h1>Jayson Wu</h1>
+				<p class="resume-role">{t.role}</p>
+			</div>
+			<div class="resume-contact">
+				<a href="mailto:jaysonwu524@gmail.com">jaysonwu524@gmail.com</a>
+				<a href="https://github.com/jaysonwu524" target="_blank" rel="noreferrer">github.com/jaysonwu524</a>
+				<span>{t.location}</span>
+			</div>
+		</header>
+
+		<section class="resume-section resume-summary" aria-label={t.strengths}>
+			<div class="resume-strengths resume-section-body">
+				{strengths.map((text) => <div class="resume-strength-item"><p>{text}</p></div>)}
+			</div>
+		</section>
+
+		<section class="resume-section resume-experience">
+			<div class="resume-section-label"><h2>{t.experience}</h2></div>
+			<div class="resume-experience-list resume-section-body">
+				{experience.map((item) => (
+					<article class="resume-experience-item">
+						<header class="resume-job-heading">
+							<div>
+								<h3>{item.company}</h3>
+								<p class="resume-job-role">{item.role}</p>
+							</div>
+							<p class="resume-period">{item.period}</p>
+						</header>
+						<p class="resume-job-detail">{item.detail}</p>
+						{item.projects.length > 0 && (
+							<nav class="resume-related" aria-label={`${item.company} · ${t.relatedCases}`}>
+								<ul role="list">
+									{item.projects.map((project) => (
+										<li><MoreLink class="resume-case-link" href={localePath(locale, project.href)}>{project.name}</MoreLink></li>
+									))}
+								</ul>
+							</nav>
+						)}
+					</article>
+				))}
+			</div>
+		</section>
+
+		<section class="resume-section resume-skills">
+			<div class="resume-section-label"><h2>{t.skills}</h2></div>
+			<div class="resume-skill-list resume-section-body">
+				{skills.map((skill) => (
+					<div class="resume-skill-row">
+						<h3>{skill.title}</h3>
+						<ul role="list">{skill.body.split(' / ').map((name) => <li>{name}</li>)}</ul>
+					</div>
+				))}
+			</div>
+		</section>
+	</div>
+</SiteLayout>
+
+<style>
+	/* Resume content shares the homepage's editorial typography and rhythm. */
+	.resume-page {
+		--resume-label-width: 160px;
+		--resume-heading-size: 1.5rem;
+		--resume-name-size: clamp(3rem, 6.2vw, 5rem);
+		padding-bottom: var(--space-7);
+	}
+	.resume-hero { display: flex; align-items: end; justify-content: space-between; gap: var(--space-5); padding-block: var(--space-6); }
+	.resume-eyebrow { margin: 0 0 var(--space-2); color: var(--accent); font-size: var(--text-small); letter-spacing: .08em; }
+	.resume-hero h1 { margin: 0; color: var(--ink); font: 500 var(--resume-name-size)/1.12 var(--display); letter-spacing: -.045em; }
+	.resume-role { margin: var(--space-2) 0 0; color: var(--ink-muted); font-size: var(--text-body); letter-spacing: .08em; }
+	.resume-contact { display: grid; gap: 0; justify-items: end; margin: 0; color: var(--ink-muted); font-size: var(--text-small); line-height: 1.7; }
+	.resume-contact a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-soft); }
+	.resume-contact span { padding-top: var(--space-1); }
+	.resume-contact a:hover { color: var(--accent); }
+	.resume-section { display: grid; grid-template-columns: var(--resume-label-width) minmax(0, 1fr); gap: var(--space-5); padding-block: var(--space-6); }
+	.resume-section-label h2 { margin: 0; color: var(--ink); font: 500 var(--resume-heading-size)/1.5 var(--display); letter-spacing: .045em; }
+	.resume-section-body { min-width: 0; }
+	.resume-summary { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); padding: var(--space-4); background: var(--surface-soft); border-radius: var(--radius); }
+	.resume-strengths { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); margin: 0; padding: 0; }
+	.resume-strength-item p { margin: 0; color: var(--ink-soft); font-size: var(--text-body); line-height: 2; }
+	.resume-experience-list { display: grid; gap: var(--space-5); }
+	.resume-job-heading { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-2); }
+	.resume-experience-item h3 { margin: 0; color: var(--ink); font-size: var(--text-section); font-weight: 500; line-height: 1.65; }
+	.resume-job-role { margin: var(--space-1) 0 0; color: var(--accent); font-size: var(--text-small); }
+	.resume-period { flex-shrink: 0; margin: 0; color: var(--ink-muted); font-size: var(--text-meta); font-variant-numeric: tabular-nums; }
+	.resume-job-detail { margin: 0; color: var(--ink-soft); font-size: var(--text-body); line-height: 1.95; }
+	.resume-related { margin-top: var(--space-2); }
+	.resume-related ul { display: flex; flex-wrap: wrap; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+	.resume-related :global(.resume-case-link) {
+		max-width: 100%;
+		padding: var(--space-1) var(--space-2);
+		border-radius: var(--radius);
+		background: var(--surface-soft);
+		color: var(--ink-soft);
+		letter-spacing: 0;
+		transition: color var(--transition), background-color var(--transition);
+	}
+	.resume-related :global(.resume-case-link:hover), .resume-related :global(.resume-case-link:focus-visible) {
+		background: var(--accent-soft);
+		color: var(--accent);
+		text-decoration: none;
+	}
+	.resume-skills { border-top: 1px solid var(--line); padding-bottom: 0; }
+	.resume-skill-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+	.resume-skill-row h3 { margin: 0 0 var(--space-2); color: var(--accent); font-size: var(--text-body); font-weight: 500; }
+	.resume-skill-row ul { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); list-style: none; margin: 0; padding: 0; }
+	.resume-skill-row li { color: var(--ink-soft); font-size: var(--text-small); line-height: 1.7; }
+	@media (max-width: 1024px) {
+		.resume-page { --resume-label-width: 128px; }
+		.resume-section { gap: var(--space-4); }
+		.resume-summary { padding: var(--space-3); }
+		.resume-job-heading { flex-direction: column; gap: var(--space-1); }
+	}
+	@media (max-width: 767px) {
+		.resume-page { --resume-name-size: 3rem; --resume-heading-size: 1.3125rem; padding-bottom: var(--space-6); }
+		.resume-hero { display: block; padding-block: var(--space-5); }
+		.resume-role { margin-top: var(--space-2); font-size: var(--text-body); }
+		.resume-contact { justify-items: start; margin-top: var(--space-3); }
+		.resume-section { grid-template-columns: 1fr; gap: var(--space-3); padding-block: var(--space-5); }
+		.resume-summary { padding: var(--space-3); }
+		.resume-strengths { gap: var(--space-2); }
+		.resume-skill-list { grid-template-columns: 1fr; gap: var(--space-3); }
+		.resume-strength-item p, .resume-skill-row li { font-size: .875rem; }
+		.resume-experience-list { gap: var(--space-4); }
+		.resume-job-detail { font-size: .9375rem; }
+		.resume-skills { padding-bottom: 0; }
+	}
+	@media print {
+		.resume-page { padding: 0; }
+		.resume-hero { padding-block: 0 var(--space-4); }
+		.resume-section { padding-block: var(--space-4); }
+		.resume-summary { padding: 0; background: transparent; }
+		.resume-strength-item, .resume-experience-item, .resume-skill-row { break-inside: avoid; }
+	}
+</style>

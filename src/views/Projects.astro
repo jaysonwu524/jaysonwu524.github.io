@@ -1,0 +1,23 @@
+---
+import { localizedCollection } from '../i18n/content';
+import { getLocale, messages } from '../i18n/ui';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import ProjectList from '../components/ProjectList.astro';
+
+const locale = getLocale(Astro.url.pathname);
+const t = messages[locale];
+const projects = (await localizedCollection('projects', locale)).sort((a, b) => a.data.order - b.data.order);
+---
+
+<SiteLayout title={`${t.cases} | Jayson Wu`} description={t.projectsMeta}>
+	<div class="container">
+		<header class="page-hero">
+			<h1 class="section-title">{t.projects}</h1>
+			<p>{t.projectsDescription}</p>
+		</header>
+
+		<section class="listing-section" aria-label={t.projectList}>
+			<ProjectList projects={projects} />
+		</section>
+	</div>
+</SiteLayout>

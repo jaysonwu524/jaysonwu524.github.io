@@ -1,0 +1,83 @@
+---
+import LanguagePicker from './LanguagePicker.astro';
+import { getLocale, localePath, messages } from '../i18n/ui';
+interface Props {
+	navItems: { href: string; label: string }[];
+	currentPath: string;
+}
+
+const { navItems, currentPath } = Astro.props;
+const locale = getLocale(Astro.url.pathname);
+const t = messages[locale];
+const home = localePath(locale);
+const isCurrent = (href: string) => href === home ? currentPath === home : currentPath === href || currentPath.startsWith(href);
+---
+
+<site-navigation>
+	<header class="site-header">
+		<div class="header-inner">
+			<a class="brand" href={home} aria-label={`jaysonwu524.com · ${t.home}`}>
+				<span class="brand-mark" aria-hidden="true">JW</span>
+				<span class="brand-name">jaysonwu524.com</span>
+			</a>
+			<nav class="site-nav" aria-label={t.mainNav}>
+				{navItems.map((item) => (
+					<a class="nav-link" href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
+				))}
+			</nav>
+			<LanguagePicker />
+		</div>
+	</header>
+</site-navigation>
+
+<script>
+	class SiteNavigation extends HTMLElement {
+		private cleanup?: () => void;
+
+		connectedCallback() {
+			const header = this.querySelector<HTMLElement>('.site-header');
+			const trigger = document.querySelector<HTMLElement>('[data-header-retract]');
+			const footer = document.querySelector<HTMLElement>('.site-footer');
+			const main = document.querySelector('main');
+			if (!header || !trigger || !footer || !main) return;
+
+			let canRetract = false;
+			const updateProgress = () => {
+				const bounds = trigger.getBoundingClientRect();
+				const viewportHeight = document.documentElement.clientHeight;
+				const progress = canRetract ? Math.min(1, Math.max(0, (viewportHeight - bounds.top) / bounds.height)) : 0;
+				header.style.setProperty('--header-collapse', String(progress));
+			};
+			const updateLayout = () => {
+				const viewportHeight = document.documentElement.clientHeight;
+				const footerStart = footer.getBoundingClientRect().top + window.scrollY;
+				// No collapse if the trigger would already be visible at the top of a short page.
+				canRetract = footerStart > viewportHeight + header.offsetHeight;
+				updateProgress();
+			};
+
+			// Only observes the small band before the footer, with no per-frame scroll handler.
+			const intersection = new IntersectionObserver(updateProgress, {
+				threshold: Array.from({ length: 65 }, (_, index) => index / 64),
+			});
+			const resize = new ResizeObserver(updateLayout);
+			intersection.observe(trigger);
+			[header, main, footer].forEach((element) => resize.observe(element));
+			window.addEventListener('resize', updateLayout);
+			window.addEventListener('pageshow', updateLayout);
+			updateLayout();
+			this.cleanup = () => {
+				intersection.disconnect();
+				resize.disconnect();
+				window.removeEventListener('resize', updateLayout);
+				window.removeEventListener('pageshow', updateLayout);
+			};
+		}
+
+		disconnectedCallback() {
+			this.cleanup?.();
+		}
+	}
+
+	if (!customElements.get('site-navigation')) customElements.define('site-navigation', SiteNavigation);
+</script>

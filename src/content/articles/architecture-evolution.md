@@ -1,9 +1,9 @@
 ---
 title: "RateHub：从分布式行情平台到单体实时服务的架构收敛"
-description: "一个中心化交易所子公司的行情基础服务，如何从 Connect/Share 分布式架构收敛为以内存实时状态为核心的单体服务。"
-date: 2026-09-20
-readingTime: "10 min"
-tags: ["Architecture", "Real-time", "Trade-off"]
+description: "从重复接入与高频数据库读写出发，复盘行情服务如何通过架构收敛，缩短实时链路并控制系统复杂度。"
+editorialScore: 8.0
+readingTime: "约 10 分钟"
+tags: ["架构设计", "实时行情", "技术权衡"]
 ---
 
 ## 摘要

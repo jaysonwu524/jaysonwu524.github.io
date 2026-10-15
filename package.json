@@ -6,15 +6,25 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "i18n:sync": "node scripts/sync-traditional.mjs",
+    "predev": "npm run i18n:sync",
+    "prebuild": "npm run i18n:sync",
+    "check": "npm run i18n:sync && astro check",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.3.3"
+    "@lucide/astro": "^1.57.0",
+    "astro": "^7.3.3",
+    "opencc-js": "^1.4.2"
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
   }
 }

@@ -1,0 +1,33 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { ArrowRight } from '@lucide/astro';
+import { contentSlug, getLocale, localePath, messages } from '../i18n/ui';
+
+interface Props {
+	projects: CollectionEntry<'projects'>[];
+	headingLevel?: 'h2' | 'h3';
+	variant?: 'list' | 'showcase';
+}
+
+const { projects, headingLevel: Heading = 'h2', variant = 'list' } = Astro.props;
+const locale = getLocale(Astro.url.pathname);
+const t = messages[locale];
+---
+
+<div class:list={['article-list', { 'project-list': variant === 'list', 'project-showcase': variant === 'showcase' }]}>
+	{projects.map((project) => (
+		<a class:list={['article-card', { 'project-list-card': variant === 'list' }]} href={localePath(locale, `projects/${contentSlug(project.id)}`)}>
+			{variant === 'showcase' && <span class="showcase-category">{project.data.category}</span>}
+			{variant === 'list' && <span class="project-list-category">{project.data.category}</span>}
+			<div class="article-card-content">
+				<Heading>{variant === 'showcase' ? <><span class="showcase-name">{project.data.name.split(' · ')[0]}</span><span class="showcase-purpose">{project.data.name.split(' · ').slice(1).join(' · ')}</span></> : <><span class="project-list-name">{project.data.name.split(' · ')[0]}</span><span class="project-list-purpose">{project.data.name.split(' · ').slice(1).join(' · ')}</span></>}</Heading>
+				<p>{project.data.description}</p>
+				<div class="article-card-meta">
+					{variant === 'list' && <span class="project-audience">{t.audience}{project.data.audience}</span>}
+					<span>{project.data.tags.join(' / ')}</span>
+				</div>
+			</div>
+			<span class="article-arrow" aria-hidden="true"><ArrowRight class="ui-icon" aria-hidden="true" focusable="false" /></span>
+		</a>
+	))}
+</div>

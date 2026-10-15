@@ -1,0 +1,61 @@
+---
+import { render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import MoreLink from '../components/MoreLink.astro';
+import { localizedCollection } from '../i18n/content';
+import { contentSlug, getLocale, localePath, messages } from '../i18n/ui';
+import { ArrowRight, ArrowUpRight } from '@lucide/astro';
+
+interface Props {
+	project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+const locale = getLocale(Astro.url.pathname);
+const t = messages[locale];
+const [projectName, ...projectPositioning] = project.data.title.split(/：|: /);
+const flow = project.data.flow ?? [];
+const { Content } = await render(project);
+const allProjects = (await localizedCollection('projects', locale)).sort((a, b) => a.data.order - b.data.order);
+const nextProject = allProjects[(allProjects.findIndex((item) => item.id === project.id) + 1) % allProjects.length];
+const allArticles = await localizedCollection('articles', locale);
+const relatedArticles = (project.data.relatedArticles ?? [])
+	.map((id) => allArticles.find((article) => contentSlug(article.id) === id))
+	.filter((article): article is (typeof allArticles)[number] => Boolean(article));
+---
+
+<SiteLayout title={`${project.data.title} | Jayson Wu`} description={project.data.description}>
+	<div class="container project-shell">
+		<MoreLink class="article-back" href={localePath(locale, 'projects')} back>{t.backProjects}</MoreLink>
+		<header class="project-header">
+			<p class="project-kicker">{project.data.category}</p>
+			<h1>{projectName}{projectPositioning.length > 0 && <span>{projectPositioning.join('：')}</span>}</h1>
+			<p class="article-description">{project.data.description}</p>
+			<div class="article-meta">
+				<span>{project.data.tags.join(' / ')}</span>
+			</div>
+		</header>
+		{flow.length > 0 && <section class="project-flow" aria-labelledby="project-flow-title">
+			<h2 id="project-flow-title">{t.businessFlow}</h2>
+			<ol>
+				{flow.map((step, index) => <li><span>{step}</span>{index < flow.length - 1 && <ArrowRight class="ui-icon" aria-hidden="true" focusable="false" />}</li>)}
+			</ol>
+		</section>}
+		<article class="article-body project-body"><Content /></article>
+		{relatedArticles.length > 0 && (
+			<aside class="project-related" aria-labelledby="related-articles-title">
+				<h2 id="related-articles-title">{t.relatedArticles}</h2>
+				{relatedArticles.map((article) => <a href={localePath(locale, `articles/${contentSlug(article.id)}`)}>{article.data.title}<ArrowUpRight class="ui-icon" aria-hidden="true" focusable="false" /></a>)}
+			</aside>
+		)}
+		<nav class="project-followup" aria-label={t.projectNav}>
+			<a class="project-next" href={localePath(locale, `projects/${contentSlug(nextProject.id)}`)}>
+				<span class="project-next-label">{t.nextProject}</span>
+				<span class="project-next-name">{nextProject.data.name.split(' · ')[0]}<ArrowUpRight class="ui-icon" aria-hidden="true" focusable="false" /></span>
+				<span class="project-next-description">{nextProject.data.description}</span>
+			</a>
+			<MoreLink class="project-return" href={localePath(locale, 'projects')} back>{t.backProjects}</MoreLink>
+		</nav>
+	</div>
+</SiteLayout>
