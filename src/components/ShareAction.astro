@@ -1,0 +1,33 @@
+---
+import { Share2 } from '@lucide/astro';
+import { getLocale, messages } from '../i18n/ui';
+interface Props { title: string; description: string; }
+const { title, description } = Astro.props;
+const t = messages[getLocale(Astro.url.pathname)];
+const url = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href;
+---
+
+<div class="share-action" data-share-action data-title={title} data-description={description} data-url={url}
+  data-share-label={t.sharePage} data-copy-label={t.copyLink} data-copied-label={t.linkCopied} data-manual-label={t.copyManually} hidden>
+  <button type="button" data-share-button><Share2 class="ui-icon" aria-hidden="true" /><span data-share-label>{t.sharePage}</span></button>
+  <span class="share-status" data-share-status role="status"></span>
+  <input type="url" data-share-url value={url} readonly aria-label={t.pageLink} hidden />
+</div>
+
+<script>
+  import '../scripts/share';
+</script>
+
+<style>
+  /* Actions participate in the parent grid; feedback uses its own row. */
+  .share-action { display: contents; }
+  .share-action[hidden], input[hidden] { display: none; }
+  button { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 44px; padding: var(--space-1) var(--space-2); border: 1px solid var(--line); border-radius: var(--radius); color: var(--ink-soft); background: transparent; font: inherit; cursor: pointer; transition: color var(--transition), border-color var(--transition), background var(--transition); }
+  button:hover, button:focus-visible { color: var(--accent); border-color: currentColor; background: var(--accent-soft); }
+  button:disabled { cursor: wait; opacity: .6; }
+  .share-status { grid-column: 1 / -1; grid-row: 2; min-width: 0; color: var(--ink-muted); font-size: var(--text-small); text-align: right; }
+  .share-status:empty { display: none; }
+  input { grid-column: 1 / -1; grid-row: 3; width: 100%; min-width: 0; max-width: 100%; padding: var(--space-1); border: 1px solid var(--line); border-radius: var(--radius); color: var(--ink); background: var(--surface-soft); font: inherit; }
+  @media print { .share-action { display: none; } }
+  @media (prefers-reduced-motion: reduce) { button { transition: none; } }
+</style>

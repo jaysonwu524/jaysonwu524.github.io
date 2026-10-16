@@ -39,11 +39,68 @@
 .writing-contents a:focus-visible { outline-offset: -2px; }
 .writing-mobile-contents { display: none; }
 
-/* Reading on and returning are separate rows, so neither squeezes the content. */
-.writing-end { margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--line); }
-.writing-next > h2 { margin: 0 0 var(--space-3); font-size: var(--text-small); font-weight: 400; color: var(--ink-muted); }
-.writing-next .article-card h3 { font: 500 var(--text-title)/1.7 var(--display); }
-.writing-next .article-card p { font-size: var(--text-small); }
+/* A considered ending: recommendations carry the visual weight, actions recede. */
+.content-end {
+  margin-top: clamp(3rem, 8vw, 5rem);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+.content-end-grid {
+  display: grid;
+  gap: var(--space-5);
+}
+.content-end.has-related .content-end-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(var(--space-4), 7vw, var(--space-6));
+}
+.content-end-grid > .related-content {
+  min-width: 0;
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+}
+.content-next { min-width: 0; }
+.content-actions {
+  --content-action-height: 44px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  margin-top: var(--space-4);
+}
+.content-actions .content-return,
+.content-actions .share-action button {
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  height: var(--content-action-height);
+  min-height: var(--content-action-height);
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+  background: var(--surface-soft);
+  font: 400 var(--text-small)/1 var(--sans);
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  transition: color var(--transition), border-color var(--transition), background var(--transition), transform var(--transition);
+}
+.content-actions .share-action button { grid-column: 1; }
+.content-actions .content-return { grid-column: 2; }
+.content-actions .content-return:hover,
+.content-actions .content-return:focus-visible,
+.content-actions .share-action button:hover,
+.content-actions .share-action button:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
 .writing-return { margin-top: var(--space-4); }
 
 @media (max-width: 1024px) {
@@ -58,6 +115,10 @@
 }
 
 @media (max-width: 767px) {
+  .content-end.has-related .content-end-grid { grid-template-columns: 1fr; gap: var(--space-4); }
+  .content-end { margin-top: var(--space-5); }
+  .content-actions { margin-top: var(--space-3); }
+  .content-actions .content-return, .content-actions .share-action button { padding-inline: var(--space-1); }
   .writing-archive .article-card { grid-template-columns: minmax(0, 1fr) var(--icon-size); gap: var(--space-2); padding-block: var(--space-4); }
   .writing-topic { grid-column: 1; flex-direction: row; align-items: baseline; gap: var(--space-2); padding: 0; }
   .writing-archive .article-card-content { grid-column: 1; min-width: 0; }
@@ -69,7 +130,6 @@
   .writing-shell .article-description { font-size: var(--text-body); }
   .writing-body h2 { margin-top: var(--space-5); font-size: var(--text-section); }
   .writing-body h3 { font-size: var(--text-body); }
-  .writing-next .article-card h3 { font-size: var(--text-section); }
 }
 
 @media print {

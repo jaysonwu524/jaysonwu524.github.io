@@ -1,0 +1,19 @@
+---
+import { ArrowUpRight } from '@lucide/astro';
+
+interface Props {
+  label: string;
+  title: string;
+  href: string;
+}
+
+const { label, title, href } = Astro.props;
+---
+
+<a class="recommendation-card" href={href} title={title}>
+  <span class="recommendation-card-copy">
+    <span class="recommendation-card-label">{label}</span>
+    <span class="recommendation-card-title">{title}</span>
+  </span>
+  <ArrowUpRight class="ui-icon" aria-hidden="true" focusable="false" />
+</a>

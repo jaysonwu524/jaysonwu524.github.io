@@ -62,6 +62,29 @@ AI サービスでは、利用権限、購入、リソース消費を一緒に�
 
 ブランドの文言、画像、テーマ、一部の業務方針もテナント別に設定できます。共通機能と提携先ごとの違いを分けて改善できる構成です。
 
+## プロダクト紹介
+
+健康記録、AI 対話、レポートのアップロード、起動画面を紹介します。健康情報の整理、相談の開始、継続的な利用につながる主な入口です。
+
+<div class="project-gallery project-gallery--four">
+  <figure>
+    <img src="/projects/laife-ai/health-records.webp" alt="検査指標、異常状態、AI 健康サマリーを示す LAIFE AI の健康記録紹介画像" loading="lazy" width="1605" height="3474" />
+    <figcaption>健康記録と指標の推移</figcaption>
+  </figure>
+  <figure>
+    <img src="/projects/laife-ai/ai-assistant.webp" alt="個別の対話入口、音声入力、フォローアップ記録を示す LAIFE AI アシスタントの紹介画像" loading="lazy" width="1605" height="3474" />
+    <figcaption>AI 対話と継続的なサポート</figcaption>
+  </figure>
+  <figure>
+    <img src="/projects/laife-ai/report-upload.webp" alt="レポート種別の選択、撮影ガイド、ファイル送信を示す LAIFE AI の紹介画像" loading="lazy" width="1605" height="3474" />
+    <figcaption>レポート送信と資料の取り込み</figcaption>
+  </figure>
+  <figure>
+    <img src="/projects/laife-ai/brand-experience.webp" alt="AICUN AI 健康アシスタントの起動画面を示す LAIFE AI のブランド紹介画像" loading="lazy" width="1605" height="3474" />
+    <figcaption>起動とブランド体験</figcaption>
+  </figure>
+</div>
+
 ## 成果
 
 健康資料の取り込み、人による修正、記録の照会から、AI 支援、チーム連携、購入までを一つの製品フローにしました。

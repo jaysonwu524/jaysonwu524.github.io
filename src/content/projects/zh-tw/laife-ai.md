@@ -72,6 +72,29 @@ AI 服務需要同時管理使用權限、客戶購買和資源消耗。平臺�
 
 平臺同時支持租戶品牌配置，品牌文案、圖片、主題及部分業務策略由後臺維護，為不同合作方提供各自的產品入口。共享業務能力與租戶差異因此可以分別演進。
 
+## 產品展示
+
+以下展示健康檔案、AI 對話、報告上傳和啟動體驗，呈現用戶從整理健康資料、發起諮詢到持續使用服務的主要入口。
+
+<div class="project-gallery project-gallery--four">
+  <figure>
+    <img src="/projects/laife-ai/health-records.webp" alt="LAIFE AI 健康檔案展示圖，展示檢測指標、異常狀態與 AI 健康簡報" loading="lazy" width="1605" height="3474" />
+    <figcaption>健康檔案與指標趨勢</figcaption>
+  </figure>
+  <figure>
+    <img src="/projects/laife-ai/ai-assistant.webp" alt="LAIFE AI 健康助手展示圖，展示個性化對話入口、語音輸入與隨訪記錄" loading="lazy" width="1605" height="3474" />
+    <figcaption>AI 對話與服務陪伴</figcaption>
+  </figure>
+  <figure>
+    <img src="/projects/laife-ai/report-upload.webp" alt="LAIFE AI 報告上傳展示圖，展示報告類型選擇、拍攝指引與文件上傳入口" loading="lazy" width="1605" height="3474" />
+    <figcaption>報告上傳與資料接入</figcaption>
+  </figure>
+  <figure>
+    <img src="/projects/laife-ai/brand-experience.webp" alt="LAIFE AI 品牌體驗展示圖，展示 AICUN AI 健康助手啟動畫面" loading="lazy" width="1605" height="3474" />
+    <figcaption>產品啟動與品牌體驗</figcaption>
+  </figure>
+</div>
+
 ## 項目成果
 
 LAIFE AI 形成了從健康資料接入、人工校正、檔案查詢，到 AI 輔助服務、團隊協作和服務購買的一套產品流程。

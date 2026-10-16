@@ -3,9 +3,13 @@ import { render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import MoreLink from '../components/MoreLink.astro';
+import RelatedContent from '../components/RelatedContent.astro';
+import RecommendationCard from '../components/RecommendationCard.astro';
+import ShareAction from '../components/ShareAction.astro';
 import { localizedCollection } from '../i18n/content';
 import { contentSlug, getLocale, localePath, messages } from '../i18n/ui';
-import { ArrowRight, ArrowUpRight } from '@lucide/astro';
+import { ArrowRight } from '@lucide/astro';
+import '../styles/articles.css';
 
 interface Props {
 	project: CollectionEntry<'projects'>;
@@ -21,8 +25,8 @@ const allProjects = (await localizedCollection('projects', locale)).sort((a, b) 
 const nextProject = allProjects[(allProjects.findIndex((item) => item.id === project.id) + 1) % allProjects.length];
 const allArticles = await localizedCollection('articles', locale);
 const relatedArticles = (project.data.relatedArticles ?? [])
-	.map((id) => allArticles.find((article) => contentSlug(article.id) === id))
-	.filter((article): article is (typeof allArticles)[number] => Boolean(article));
+	.map((id) => allArticles.find((article) => contentSlug(article.id) === id.trim()))
+	.filter((article): article is (typeof allArticles)[number] => Boolean(article?.data.title.trim()));
 ---
 
 <SiteLayout title={`${project.data.title} | Jayson Wu`} description={project.data.description}>
@@ -43,19 +47,17 @@ const relatedArticles = (project.data.relatedArticles ?? [])
 			</ol>
 		</section>}
 		<article class="article-body project-body"><Content /></article>
-		{relatedArticles.length > 0 && (
-			<aside class="project-related" aria-labelledby="related-articles-title">
-				<h2 id="related-articles-title">{t.relatedArticles}</h2>
-				{relatedArticles.map((article) => <a href={localePath(locale, `articles/${contentSlug(article.id)}`)}>{article.data.title}<ArrowUpRight class="ui-icon" aria-hidden="true" focusable="false" /></a>)}
-			</aside>
-		)}
-		<nav class="project-followup" aria-label={t.projectNav}>
-			<a class="project-next" href={localePath(locale, `projects/${contentSlug(nextProject.id)}`)}>
-				<span class="project-next-label">{t.nextProject}</span>
-				<span class="project-next-name">{nextProject.data.name.split(' · ')[0]}<ArrowUpRight class="ui-icon" aria-hidden="true" focusable="false" /></span>
-				<span class="project-next-description">{nextProject.data.description}</span>
-			</a>
-			<MoreLink class="project-return" href={localePath(locale, 'projects')} back>{t.backProjects}</MoreLink>
-		</nav>
+		<footer class:list={['content-end', 'project-followup', { 'has-related': relatedArticles.length > 0 }]}>
+			<div class="content-end-grid">
+				<RelatedContent id="related-articles-title" title={t.relatedArticles} links={relatedArticles.map((article) => ({ title: article.data.title, href: localePath(locale, `articles/${contentSlug(article.id)}`) }))} />
+				<nav class="content-next project-next-wrap" aria-label={t.nextProject}>
+					<RecommendationCard label={t.nextProject} title={nextProject.data.name.split(' · ')[0]} href={localePath(locale, `projects/${contentSlug(nextProject.id)}`)} />
+				</nav>
+			</div>
+			<div class="content-actions">
+				<ShareAction title={project.data.title} description={project.data.description} />
+				<MoreLink class="content-return" href={localePath(locale, 'projects')} back>{t.backProjects}</MoreLink>
+			</div>
+		</footer>
 	</div>
 </SiteLayout>

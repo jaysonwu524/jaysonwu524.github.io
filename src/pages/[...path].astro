@@ -11,23 +11,25 @@ import Article from '../views/Article.astro';
 import Project from '../views/Project.astro';
 
 export async function getStaticPaths() {
-  const [routes, articles, projects] = await Promise.all([siteRoutes(), getCollection('articles'), getCollection('projects')]);
+  const [routes, articles, projects, practice] = await Promise.all([siteRoutes(), getCollection('articles'), getCollection('projects'), getCollection('practice')]);
   return routes.map(({ locale, path, url }) => ({
     params: { path: url.replace(/^\/|\/$/g, '') || undefined },
     props: {
       page: path,
       article: articles.find(({ id }) => contentLocale(id) === locale && `articles/${contentSlug(id)}` === path),
       project: projects.find(({ id }) => contentLocale(id) === locale && `projects/${contentSlug(id)}` === path),
+      practice: path === 'ai' ? practice.find(({ id }) => contentLocale(id) === locale) : undefined,
     },
   }));
 }
 
-interface Props { page: string; article?: CollectionEntry<'articles'>; project?: CollectionEntry<'projects'>; }
-const { page, article, project } = Astro.props;
+interface Props { page: string; article?: CollectionEntry<'articles'>; project?: CollectionEntry<'projects'>; practice?: CollectionEntry<'practice'>; }
+const { page, article, project, practice } = Astro.props;
 ---
 {page === '' && <Home />}
 {page === 'articles' && <Articles />}
 {page === 'projects' && <Projects />}
 {page === 'resume' && <Resume />}
 {article && <Article article={article} />}
+{practice && <Article article={practice} />}
 {project && <Project project={project} />}

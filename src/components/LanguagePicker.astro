@@ -1,19 +1,18 @@
 ---
-import { Languages, ChevronDown, Check } from '@lucide/astro';
+import { Languages, Check } from '@lucide/astro';
 import { getLocale, languageNames, languageTags, localePath, locales, messages, unlocalizedPath } from '../i18n/ui';
 const locale = getLocale(Astro.url.pathname);
 const path = unlocalizedPath(Astro.url.pathname);
+const isNotFound = /^404(?:\.html)?$/.test(path);
 ---
 
 <details class="language-picker">
-  <summary aria-label={messages[locale].language}>
+  <summary class="header-icon-button" aria-label={`${messages[locale].language} · ${languageNames[locale]}`} title={messages[locale].language}>
     <Languages class="ui-icon" aria-hidden="true" />
-    <span class="language-current">{languageNames[locale]}</span>
-    <ChevronDown class="ui-icon language-chevron" aria-hidden="true" />
   </summary>
   <nav class="language-options" aria-label={messages[locale].language}>
     {locales.map((item) => (
-      <a href={localePath(item, path)} lang={languageTags[item]} hreflang={languageTags[item]} aria-current={item === locale ? 'true' : undefined}>
+      <a href={isNotFound ? (item === 'zh-cn' ? '/404.html' : localePath(item, '404')) : localePath(item, path)} lang={languageTags[item]} hreflang={languageTags[item]} aria-current={item === locale ? 'true' : undefined}>
         <span>{languageNames[item]}</span>
         {item === locale && <Check class="ui-icon" aria-hidden="true" />}
       </a>
@@ -33,14 +32,11 @@ const path = unlocalizedPath(Astro.url.pathname);
 
 <style>
   .language-picker { --language-menu-width: 172px; position: relative; flex-shrink: 0; font-size: var(--text-small); }
-  summary { display: flex; align-items: center; gap: var(--space-1); min-height: 44px; padding-inline: var(--space-1); color: var(--ink-soft); cursor: pointer; list-style: none; border-radius: var(--radius); }
+  summary { list-style: none; }
   summary::-webkit-details-marker { display: none; }
-  summary:hover, .language-picker[open] summary { color: var(--accent); background: var(--surface-soft); }
-  .language-chevron { width: 12px; height: 12px; transition: transform var(--transition); }
-  .language-picker[open] .language-chevron { transform: rotate(180deg); }
+  .language-picker[open] summary { color: var(--accent); background: var(--surface-soft); }
   .language-options { position: absolute; right: 0; top: calc(100% + var(--space-1)); width: var(--language-menu-width); padding: var(--space-1); background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 8%, transparent); }
   .language-options a { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); min-height: 44px; padding: var(--space-1); color: var(--ink-soft); }
   .language-options a:hover, .language-options a[aria-current] { color: var(--accent); background: var(--surface-soft); text-decoration: none; }
-  @media (min-width: 768px) and (max-width: 1024px) { .language-current { display: none; } }
   @media print { .language-picker { display: none; } }
 </style>

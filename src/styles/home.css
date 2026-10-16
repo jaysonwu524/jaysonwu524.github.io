@@ -162,10 +162,6 @@
   .home-page .featured-writing .article-card:first-child { padding: var(--space-3); }
 }
 
-@media (prefers-color-scheme: dark) {
-  .home-page .profile-avatar { filter: grayscale(1) invert(1); mix-blend-mode: screen; opacity: 0.85; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .home-page .profile-link::before { transform: none; opacity: 0; }
   .home-page .profile-link:hover::before, .home-page .profile-link:focus-visible::before { opacity: 1; }

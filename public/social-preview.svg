@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#faf9f6"/>
+  <rect x="72" y="64" width="48" height="48" rx="2" fill="#292823"/>
+  <text x="96" y="94" text-anchor="middle" fill="#faf9f6" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="700">JW</text>
+  <text x="144" y="95" fill="#56554f" font-family="Helvetica, Arial, sans-serif" font-size="23" letter-spacing="1">jaysonwu524.com</text>
+  <text x="72" y="302" fill="#292823" font-family="Georgia, serif" font-size="100">Jayson Wu</text>
+  <text x="76" y="371" fill="#a83d30" font-family="Helvetica, Arial, sans-serif" font-size="32">Building software. Sharing ideas.</text>
+  <path d="M72 482H1128" fill="none" stroke="#ddd9d1"/>
+  <text x="76" y="540" fill="#56554f" font-family="Helvetica, Arial, sans-serif" font-size="23">Projects, engineering practice &amp; architecture.</text>
+</svg>

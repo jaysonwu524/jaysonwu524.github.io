@@ -7,7 +7,7 @@ order: 2
 tags: [Sample management, Report delivery, Workflow approval, Health services]
 audience: Laboratory and reporting teams, partner organizations and test customers
 flow: [Sample reception, Laboratory materials, Report generation, Approval & delivery, Health services]
-relatedArticles: [report-system-consistency]
+relatedArticles: [microservice-authorization]
 ---
 
 Delivering a test report involves sample reception, experiments, data preparation, report production and review by multiple people. As report versions and customer groups grow, teams need to know where each sample stands, whether its materials are complete, who is handling it and when the report can be delivered.
@@ -38,6 +38,14 @@ Reviewers use pending, completed, copied and initiated workflow lists. Details s
 
 Delivery preserves sending records, failure reasons and timestamps, including elapsed-time queries from sample reception to sending. Teams can distinguish a report still generating from one awaiting approval or one that failed to send, and follow up at the correct stage.
 
+## Delivery tradeoff: controlling consistency costs early
+
+The system already had several services when traffic was still modest. After evaluating Seata, I initially chose exception records with manual recovery, shared databases for some services, and dynamic data sources to concentrate related operations. This kept early implementation and operational costs manageable.
+
+Those choices also had limits: sharing a database does not share a transaction across services, and routing between data sources does not provide atomic commits across databases. Files written to object storage do not roll back with a database transaction either. The decision therefore retained the cost of investigating and recovering partial failures.
+
+For the reporting business, the important questions are when generation, approval and sending are each complete, and where work resumes after failure. Further development should first define report versions, retries and compensation, then decide whether distributed coordination is required. Clear interfaces leave room for LIMS and mobile integration; consistency guarantees still need verification against specific failures.
+
 ## Available capabilities
 
 | Business stage | Capabilities |
@@ -60,6 +68,25 @@ LaTipSoh organizes these into a service workflow: staff maintain testing plans a
 The two businesses share accounts, permissions, files and notifications while retaining their own approval and service-management rules. Administration and customer interfaces serve different roles, keeping internal staff operations out of the customer experience.
 
 The platform is also expanding toward clinic operations, with appointment, scheduling, testing and medical-record modules already present. That part remains under development.
+
+## Product outcomes
+
+The following AgeSeer customer screens show the service entry for an unauthenticated user, the report overview with history, and the product launch experience. Together they represent the path from entering the service to reviewing results and returning for continued use.
+
+<div class="project-gallery">
+	<figure>
+		<img src="/projects/regenbio/profile.webp" alt="AgeSeer customer center with sign-in entry, testing services and account settings" loading="lazy" width="1245" height="2592" />
+		<figcaption>Customer center and testing entry</figcaption>
+	</figure>
+	<figure>
+		<img src="/projects/regenbio/report.webp" alt="AgeSeer report page with organ-system overview and report history" loading="lazy" width="415" height="864" />
+		<figcaption>Report overview and history</figcaption>
+	</figure>
+	<figure>
+		<img src="/projects/regenbio/launch.webp" alt="AgeSeer launch screen with brand identity and biological-age testing positioning" loading="lazy" width="1245" height="2592" />
+		<figcaption>Launch and brand experience</figcaption>
+	</figure>
+</div>
 
 ## Delivery
 

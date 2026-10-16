@@ -1,0 +1,27 @@
+---
+import { Moon, Sun } from '@lucide/astro';
+import { getLocale, messages } from '../i18n/ui';
+const t = messages[getLocale(Astro.url.pathname)];
+---
+
+<button
+  class="theme-toggle header-icon-button"
+  type="button"
+  aria-label={t.darkMode}
+  aria-pressed="false"
+  data-theme-toggle
+  data-light-label={t.switchLight}
+  data-dark-label={t.switchDark}
+  hidden
+>
+  <Moon class="ui-icon theme-moon" aria-hidden="true" />
+  <Sun class="ui-icon theme-sun" aria-hidden="true" />
+</button>
+
+<style>
+  .theme-toggle[hidden] { display: none; }
+  .theme-toggle .theme-sun { display: none; }
+  :global(:root[data-theme='dark']) .theme-toggle .theme-sun { display: block; }
+  :global(:root[data-theme='dark']) .theme-toggle .theme-moon { display: none; }
+  @media print { .theme-toggle { display: none; } }
+</style>

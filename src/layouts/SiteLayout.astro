@@ -1,29 +1,35 @@
 ---
 import '../styles/global.css';
+import themeScript from '../scripts/theme.js?raw';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import BotanicalScene from '../components/BotanicalScene.astro';
+import ImagePreview from '../components/ImagePreview.astro';
 import { getLocale, languageTags, localePath, locales, messages, ogLocales, unlocalizedPath } from '../i18n/ui';
 
 interface Props {
 	title?: string;
 	description?: string;
+	type?: 'website' | 'article';
+	noindex?: boolean;
 }
 
 const locale = getLocale(Astro.url.pathname);
 const t = messages[locale];
-const { title = t.siteTitle, description = t.siteDescription } = Astro.props;
+const { title = t.siteTitle, description = t.siteDescription, type = 'website', noindex = false } = Astro.props;
 const path = unlocalizedPath(Astro.url.pathname);
 
 const navItems = [
 	{ href: localePath(locale), label: t.home },
 	{ href: localePath(locale, 'projects'), label: t.projects },
 	{ href: localePath(locale, 'articles'), label: t.articles },
+	{ href: localePath(locale, 'ai'), label: t.aiPractice },
 	{ href: localePath(locale, 'resume'), label: t.resume },
 ];
 
 const currentPath = localePath(locale, path);
 const canonical = new URL(currentPath, Astro.site ?? Astro.url.origin);
+const shareImage = new URL('/social-preview.png', Astro.site ?? Astro.url.origin);
 ---
 
 <!doctype html>
@@ -31,22 +37,38 @@ const canonical = new URL(currentPath, Astro.site ?? Astro.url.origin);
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
+		<script is:inline set:html={themeScript} />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
-		<link rel="canonical" href={canonical} />
-		{locales.map((item) => <link rel="alternate" hreflang={languageTags[item]} href={new URL(localePath(item, path), Astro.site ?? Astro.url.origin)} />)}
-		<link rel="alternate" hreflang="x-default" href={new URL(localePath('zh-cn', path), Astro.site ?? Astro.url.origin)} />
+		{noindex && <meta name="robots" content="noindex, follow" />}
+		{!noindex && <>
+			<link rel="canonical" href={canonical} />
+			{locales.map((item) => <link rel="alternate" hreflang={languageTags[item]} href={new URL(localePath(item, path), Astro.site ?? Astro.url.origin)} />)}
+			<link rel="alternate" hreflang="x-default" href={new URL(localePath('zh-cn', path), Astro.site ?? Astro.url.origin)} />
+		</>}
 		<meta property="og:locale" content={ogLocales[locale]} />
 		{locales.filter((item) => item !== locale).map((item) => <meta property="og:locale:alternate" content={ogLocales[item]} />)}
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonical} />
-		<meta property="og:type" content="website" />
+		<meta property="og:type" content={type} />
+		<meta property="og:site_name" content="jaysonwu524.com" />
+		<meta property="og:image" content={shareImage} />
+		<meta property="og:image:type" content="image/png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="Jayson Wu · jaysonwu524.com" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={shareImage} />
+		<meta name="twitter:image:alt" content="Jayson Wu · jaysonwu524.com" />
+		{type === 'article' && <meta property="article:author" content={new URL(localePath(locale, 'resume'), Astro.site ?? Astro.url.origin)} />}
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<title>{title}</title>
 	</head>
 	<body>
-		<a class="skip-link" href="#main-content">{t.skip}</a>
+		<a class="skip-link" href="#main-content" data-ui-text="skip">{t.skip}</a>
 		<div class="site-shell" id="site-top">
 			<SiteHeader navItems={navItems} currentPath={currentPath} />
 
@@ -57,5 +79,6 @@ const canonical = new URL(currentPath, Astro.site ?? Astro.url.origin);
 
 			<SiteFooter navItems={navItems} />
 		</div>
+		<ImagePreview />
 	</body>
 </html>

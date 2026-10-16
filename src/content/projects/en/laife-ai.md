@@ -62,6 +62,29 @@ AI services require management of access, purchases and resource consumption. Se
 
 Tenant branding is also configurable. Operators maintain brand copy, images, themes and selected business policies for different partners. Shared capabilities and tenant-specific requirements can therefore evolve separately.
 
+## Product showcase
+
+These visuals show health records, AI conversations, report uploads and the startup experience: the main entry points for organizing health information, starting a consultation and returning to the service.
+
+<div class="project-gallery project-gallery--four">
+  <figure>
+    <img src="/projects/laife-ai/health-records.webp" alt="LAIFE AI health record visual showing test indicators, abnormal results and an AI health summary" loading="lazy" width="1605" height="3474" />
+    <figcaption>Health records and indicator trends</figcaption>
+  </figure>
+  <figure>
+    <img src="/projects/laife-ai/ai-assistant.webp" alt="LAIFE AI assistant visual showing personalized conversations, voice input and follow-up notes" loading="lazy" width="1605" height="3474" />
+    <figcaption>AI conversations and ongoing support</figcaption>
+  </figure>
+  <figure>
+    <img src="/projects/laife-ai/report-upload.webp" alt="LAIFE AI report upload visual showing report type selection, photo guidance and file upload" loading="lazy" width="1605" height="3474" />
+    <figcaption>Report uploads and information intake</figcaption>
+  </figure>
+  <figure>
+    <img src="/projects/laife-ai/brand-experience.webp" alt="LAIFE AI brand experience visual showing the AICUN AI health assistant startup screen" loading="lazy" width="1605" height="3474" />
+    <figcaption>Startup and brand experience</figcaption>
+  </figure>
+</div>
+
 ## Outcome
 
 LAIFE AI established a product workflow from health information intake and human correction through record access, AI assistance, team collaboration and service purchases.

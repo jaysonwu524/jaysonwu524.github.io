@@ -1,141 +1,118 @@
 ---
 title: "Resource authorization in microservices: Gateways, centralized decisions and local enforcement"
-description: The trade-offs between permission granularity, performance, availability and consistent policies across gateway checks, centralized decisions and service-local authorization.
-editorialScore: 7.0
-readingTime: "8 min read"
+description: "Using report access and approval to explain responsibilities across gateways, policy services and business services, including identity propagation, revocation and policy synchronization."
+editorialScore: 7.6
+readingTime: "9 min read"
 tags: [Architecture, Access control, Engineering trade-offs]
 ---
 
-Choosing an authorization design involves more than deciding where its code should live. Permission granularity, concurrency, consistency, availability and operational complexity all matter.
+In a reporting system requiring tenant isolation, a valid access token and a report-reading scope do not give a user unrestricted access to another organization's reports.
 
-First, distinguish four concepts:
+If the user substitutes another tenant's report ID, a gateway checking only the token and scope may still let the request through. Access to a particular report also depends on its tenant, the user's relationship to it and the operation being attempted.
 
-- **Authentication:** establishing who the caller is.
-- **Token validation:** checking an access token's signature, issuer, audience and expiry.
-- **Authorization decisions:** deciding whether the caller may perform an operation.
-- **Enforcement:** applying that decision to an endpoint, resource or data.
+An authorization design must therefore establish who manages rules, who makes decisions, who enforces them and how current their underlying data is.
 
-Spring Authorization Server is an OAuth 2.0 and OpenID Connect authorization-server implementation built on Spring Security. It handles authorization flows and issuance of access and refresh tokens, and can integrate with user authentication. It is not the same as a resource-authorization service.
+Consider a multi-tenant reporting system. Gateway checks, centralized decisions and local enforcement can work together.
 
-Three common patterns can be discussed along two dimensions: where decisions are made and where checks are enforced. They can be combined and are not mutually exclusive.
+## 1. Separate token validation, decisions and enforcement
 
-## 1. Gateway checks
+Authentication establishes the caller's identity. Token validation establishes whether the credential is trustworthy. An authorization decision determines whether the caller may operate on a resource. Enforcement actually prevents access without permission.
 
-Gateway authorization works well when permission rules are relatively simple. A gateway commonly:
+For JWT access tokens, a resource server must validate signatures, issuer, audience and time constraints according to its configuration. Decoding a token and reading a user ID is insufficient. Opaque tokens typically require introspection or a server-side state lookup to establish validity.
 
-1. Validates access tokens; for JWTs, checks signature, issuer, audience and expiry.
-2. Checks revocation or account status where the business requires it.
-3. Applies basic access rules based on route, role or scope.
-4. Applies entry policies such as allowlists, denylists and rate limits.
+A valid JWT does not establish that the account remains active, permissions have not been revoked or every report is accessible. Roles and scopes represent authorization information at issuance. Whether current state must be queried depends on the revocation window the business permits.
 
-For systems requiring little beyond a valid token and an accessible route, this can handle most checks. Business services may reuse validated identity if access is restricted to a trusted gateway and its identity information can be verified. Other entry points still need independent identity and permission checks.
+Spring Authorization Server supplies OAuth authorization-server and OpenID Connect capabilities, including authorization flows and token issuance. Its role differs from a resource server's; it is not automatically a permission service called for every business request.
 
-Benefits include early rejection, less authorization code in services, centralized entry rules and less invalid traffic in the internal network.
+For reports, distinguish basic eligibility to enter the reporting service from permission to read a specific report or approve its current workflow step.
 
-With finer-grained permissions, the gateway may need users, roles, organizations, resources and data-access rules. Looking up a database or central policy service on every request can make authorization a bottleneck.
+## 2. Gateways: reject early without guessing business permissions
 
-Gateway clustering and load balancing address node CPU, connection and throughput limits, but do not automatically fix policy-query bottlenecks. Deployment may also need:
+Gateways suit common, inexpensive entry checks: validate tokens, require basic scopes or roles for routes and apply allowlists, denylists, rate limits and account-status checks where needed. Invalid requests can be rejected before entering internal services.
 
-- Policy caching and local token validation.
-- Batched queries and preloaded permission data.
-- Authorization timeouts and failure policies.
-- High availability for central permission services.
+A gateway can require `report:read` for a read request. Report tenancy, ownership and approval status, however, usually belong to the reporting service. Repeated cross-service lookups to decide resource permissions add business coupling and remote-call costs to the gateway.
 
-Gateway checks therefore do not require every permission decision to happen there. Complex data access generally needs further checks inside business services.
+Gateway scaling increases gateway capacity. If the bottleneck is a shared permission database or policy service, more gateway instances may amplify downstream pressure. Determine whether the constraint comes from token processing, remote queries or the permission model before treating scaling as the answer.
 
-## 2. Centralized authorization decisions
+Identity propagation needs equal care. Services cannot simply trust client-supplied `X-User-Id` or `X-Tenant-Id` headers. If a gateway forwards identity, it must remove or replace external fields with those names, and services must verify the identity information's origin and integrity, for example through an authenticated internal channel or a signed assertion.
 
-An independent permission service or policy engine can manage policies and make decisions. Gateways or services submit a subject, resource, action and context, receive allow/deny and enforce it.
+Services can also revalidate access tokens intended for them. Either approach needs an explicit trusted entry path: an internal-network address alone does not establish identity. RPC calls, internal APIs and job entry points bypassing the gateway need identity and permission controls appropriate to their callers.
 
-```text
-Client → Gateway or business service → Permission service / policy engine
-    → Allow or deny → Caller enforces the result
-```
+## 3. Central decisions: shared rules with remote dependencies
 
-This centralizes policy maintenance, enables consistent RBAC/ABAC models and avoids editing every business service for each policy change.
+Where services share roles, organizational relationships or attribute rules, an independent policy service or engine can make decisions. Callers provide a subject, resource, action and relevant context, receive allow or deny, then enforce the result.
 
-It also introduces dependencies:
+For example, the reporting service can ask whether user A may approve report R in tenant T. Tenant, report state and approval relationships must come from trusted identity context or authoritative business data, rather than unverified request attributes.
 
-- A network round trip may be added to each check.
-- A policy-service outage can affect many requests.
-- The central service can become a throughput bottleneck.
-- Decision caching brings invalidation and consistency concerns.
+Central decisions support shared models, reusable rules and central auditing. They do not automatically make data current: approval relationships cached in the policy service still need updates and invalidation. Moving business data into that service adds synchronization work.
 
-Caching, timeouts, circuit breakers and availability need explicit design. Protected operations should default to denial when no valid decision is available. If cached decisions are permitted, define eligible actions, validity periods and the revocation window.
+Remote decisions also introduce latency and outage dependencies. Protected operations should default to denial without a valid authorization result. If cached decisions may be reused, define eligible actions, validity periods and revocation windows in advance. A timeout must not silently become permission to proceed.
 
-For changes requiring immediate effect, simply shortening a cache TTL is insufficient. Synchronous decisions or guaranteed timely invalidation are needed. Ordinary permissions tolerating delayed effect can use longer local caching.
+A cache key cannot consist only of a user ID. A report decision must distinguish at least subject, tenant, resource and action. Dependencies on approval state or policy version must also be represented in cache design or invalidation conditions. Permission to read does not imply permission to approve, and a decision for one report cannot be reused for another.
 
-Centralized management does not require remote execution on every request. Policies can be managed centrally, distributed to gateways or services and evaluated locally, with remote calls reserved for complex cases. Management stays centralized while much decision execution moves closer to the caller.
+Central policy management does not require a remote decision on every request. Versioned policies can be distributed to services and evaluated with local business data. The choice depends on rule complexity, data ownership and consistency requirements.
 
-## 3. Local checks and distributed policy synchronization
+## 4. Local enforcement: authorize resources and operations
 
-When permissions reach business operations, resources or individual rows, a gateway alone is usually insufficient. Services can enforce checks at controller, service or method-security boundaries.
+The reporting service is closest to tenancy, ownership and workflow state. After basic gateway checks, it should still establish whether this user may read this report.
+
+This method-security illustration uses `#p0` for the first method argument:
 
 ```java
-@PreAuthorize("@permission.canAccess(authentication, #orderId)")
-public OrderDetail getOrderDetail(Long orderId) {
-    return orderService.getDetail(orderId);
+@PreAuthorize("@reportPermission.canRead(authentication, #p0)")
+public ReportDetail getReportDetail(Long reportId) {
+    return reportService.getDetail(reportId);
 }
 ```
 
-Requests still pass through the gateway, but the target service uses local business data to decide access.
+The substance lies in `canRead`. It must obtain user and tenant from trusted identity context, consult authoritative report relationships and apply the read rule. The annotation supplies none of those business semantics automatically.
 
-Advantages include proximity to the relevant data, suitability for ownership and action-level checks, distribution of authorization work with business traffic and a gateway focused on routing and basic entry controls.
+Spring Security also requires method security to be enabled and calls to pass through the relevant proxy. In the default proxy-based mode, self-invocation can bypass interception. Unprotected methods do not become secure merely because annotations exist elsewhere. Check all reachable entry points rather than relying on one controller aspect.
 
-Costs include:
+Queries must enforce the permitted data scope too. A report list cannot fetch everything and rely on the frontend to hide unauthorized items. Queries, pagination counts and exports need appropriate tenant and data-access conditions.
 
-- Invalid requests entering the network if basic entry checks are absent.
-- Authorization integration in each service.
-- Potential differences in policy interpretation.
-- More complex model upgrades and policy distribution.
-- The need to prevent access paths bypassing controller checks.
+Writes such as approval also face changes between checking and execution. A user may be an approver when checked, while the report reaches its next step before submission. If workflow state and approval eligibility live in the same business database, validation and updates need a shared atomic boundary, for example through checks under appropriate locks or atomic updates conditioned on the relevant state and versions. Merely opening a transaction does not remove the race. Dependencies across services require an explicit coordination boundary. A pre-authorization annotation alone cannot guarantee that conditions still hold at execution.
 
-Local authorization should follow several principles:
+Local enforcement distributes authorization work with business requests; actual load balance still follows traffic. Services must also share rule definitions and cover their own access paths.
 
-- Default deny and grant explicitly.
-- Cover every entry path, not only a particular controller aspect.
-- Authenticate service-to-service callers and authorize their actions.
-- Do not trust client parameters alone when deciding access.
-- Give caches expiry and invalidation mechanisms.
-- Synchronize policy changes to every instance in time.
+## 5. Revocation: define the window before choosing synchronization
 
-Policies may live in a database or configuration service, with publish/subscribe notifications refreshing local caches. “Central policy storage with distributed cache synchronization” describes this more precisely than forcing it into a blackboard-architecture label.
+“Permissions take effect immediately” needs a precise meaning. Must requests starting after revocation is confirmed be denied, or must operations already underway stop too? Report previews, exports and approval submissions may require different answers.
 
-## 4. Comparing the patterns
+If ordinary reads permit a defined short window, bounded caching and event-driven invalidation may suffice. If sensitive operations must not use old permissions on requests starting after confirmed revocation, the decision path must read sufficiently current authorization state or use version checks and synchronous acknowledgments that meet that requirement. Deny execution when freshness cannot be established. A shorter TTL or a cache-refresh notification alone cannot guarantee this behavior.
 
-| Pattern | Decision or enforcement location | Benefit | Main cost |
+Synchronization must account for instances being offline, missing notifications or receiving updates out of order. Monotonically increasing policy versions can prevent older updates from overwriting newer ones. Fetch current versions at startup or reconnection, and use periodic reconciliation to detect missed updates.
+
+A version number reveals differences; it does not make all nodes switch simultaneously. Coordinated activation requires acknowledgments from relevant instances or restricting unsynchronized instances from handling affected requests. If temporary inconsistency is acceptable, define its maximum window and monitor instance version lag.
+
+## 6. Combine responsibilities rather than choosing one pattern
+
+The three approaches address different responsibilities:
+
+| Approach | Main responsibility | Useful for | Cost to address |
 | --- | --- | --- | --- |
-| Gateway checks | Gateway | Early rejection, central entry rules, fewer service changes | Concentrated load; limited business context |
-| Central decisions | Policy service decides; caller enforces | Shared models and complex policies | Network dependency and central bottlenecks |
-| Service-local authorization | Business service | Near business data; fine-grained rules | Consistent policies and complete coverage |
+| Gateway checks | Token and basic route checks | Early rejection and common entry rules | Limited business context; remote lookups can slow entry |
+| Central decisions | Shared rules across services | Common models and policies | Network dependency, central capacity, data freshness and decision caching |
+| Local enforcement | Resource and action checks using business data | Tenant isolation, ownership and workflow permissions | Coverage, policy synchronization and coordination with execution |
 
-Real systems often combine them:
+The example reporting system can combine them:
 
 ```text
-Client → Gateway: token and route checks
-    → Business service: resource, data and action permissions
-        ├── Local policies and business data
-        └── Central policy service when necessary
-    → Execute only when allowed
+Request
+  → Gateway: validate token and report read / approval scopes
+  → Reporting service: verify identity context, tenant, resource and action
+      ├─ Local business data + synchronized policies
+      └─ Central policy service when necessary
+  → Read or submit after valid authorization; record relevant audit information
 ```
 
-A gateway can reject invalid tokens or missing scopes; the service then checks access to a particular order, account or organization's data.
+First establish permission granularity, revocation windows and failure behavior. Then compare latency, throughput, availability and maintenance costs. In production, observe authorization latency, remote-decision timeouts, cache hits and policy version lag. A high cache hit rate can also accompany permissions that remain stale; interpret it alongside consistency measures.
 
-## 5. Quality attributes to balance
+Keep entry checks general, resource permissions close to the business and shared policies centrally maintainable. Rule management, decision computation and enforcement can be placed separately, but their identity, data and failure boundaries must remain explicit.
 
-Authorization affects at least these qualities:
+## References
 
-1. **Latency:** additional remote checks.
-2. **Throughput:** work concentrated in gateways or policy services versus distributed across business services.
-3. **Availability:** safe behavior during policy-service failure.
-4. **Consistency:** time for changes to take effect everywhere.
-5. **Security:** gateway bypass, forged identities and stale permissions.
-6. **Extensibility:** finer roles, resources and data permissions.
-7. **Operations:** policy releases, cache invalidation and diagnosis.
-8. **Traffic and cost:** invalid internal requests and authorization overhead.
-
-Finer granularity does not automatically mean all checks belong in services, and higher concurrency does not automatically mean everything belongs in a gateway.
-
-A practical combination uses inexpensive common checks at the gateway, business-data-dependent checks inside services, centrally managed policies, local caching and event synchronization. Invalidation and revocation follow the actual consistency requirements.
-
-The important questions are how fine permissions must be, what throughput and availability are required, and how much delay permission changes may tolerate. Those constraints determine where to decide, where to enforce and which complexity is justified.
+- [Spring Security: JWT resource servers](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html)
+- [Spring Security: method security](https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html)
+- [Spring Security: authorization server](https://docs.spring.io/spring-security/reference/servlet/oauth2/authorization-server/index.html)
+- [OWASP: Authorization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)

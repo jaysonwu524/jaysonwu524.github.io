@@ -1,209 +1,135 @@
 ---
 title: "RateHub: Consolidating a distributed market-data platform into a single real-time service"
-description: How duplicated upstream connections and frequent database access led to a shorter real-time path and a more manageable architecture.
+description: "How a shared market-data service removed database polling from quote delivery and clarified the boundaries of in-memory state, candlestick queries and asynchronous tasks."
 editorialScore: 8.0
 readingTime: "10 min read"
 tags: [Architecture, Real-time market data, Engineering trade-offs]
 ---
 
-## Overview
+The subsidiary was established in June 2023. When I joined in August, projects copied existing repositories, maintained separate deployments and independently connected to market-data providers.
 
-RateHub is a shared market-data service connecting to providers including Twelvedata, Finnhub, Binance and Whitezzzs. It supplies business systems with live prices and candlesticks across multiple time intervals.
+Some Twelvedata and Finnhub plans purchased at the time limited each API key to one to three WebSocket connections. Before the business reached scale, duplicated integrations already cost close to USD 2,000 per month. Those limits describe the plans and integration model then, rather than every product those providers offer.
 
-The project went through two distinct architectures. The first separated Connect and Share into distributed services, using MongoDB as the shared source of truth. The second consolidated them into a single real-time service built on JDK 21, Netty, in-memory state and MySQL.
+RateHub became a shared service connecting to Twelvedata, Finnhub, Binance, Whitezzzs and other sources. It managed ETFs, indices, stocks, foreign exchange, spot instruments and derivatives, supplying quotes, order books and candlesticks across intervals.
 
-This was a reassessment of data lifetimes, the real-time path and the actual business scale, rather than a retreat from an advanced architecture to a simple one.
+Its first architecture separated ingestion and distribution with MongoDB as shared state. The second consolidated the core process, kept latest prices in JVM memory and triggered distribution from upstream messages. The essential change concerned how live data moved.
 
-## 1. Context and constraints
+## 1. Version one: connecting ingestion and distribution through a database
 
-The subsidiary was established in June 2023. When I joined in August, engineering was organized by project, with almost every project maintaining a separate codebase. Market-data integrations were copied along with it, and each system connected to providers such as Twelvedata and Finnhub independently.
+The first version used JDK 17, Spring Boot, MongoDB, Redis, Kafka and XXL-Job, among other components.
 
-Three constraints shaped the problem:
-
-1. **Upstream connection costs.** Twelvedata and Finnhub limited WebSocket connections per API key, typically to one to three. Repeated integrations drove key costs close to USD 2,000 per month.
-2. **Freshness.** The latest price is frequently changing, short-lived state. Consumers care mainly about the current value and delivery latency, rather than persisting every update.
-3. **Queryable history.** Candlesticks need historical queries, gap filling and interval-based retrieval, requiring a stable persistence model.
-
-RateHub's purpose was therefore to consolidate connections, live state and historical candlestick storage into shared infrastructure, instead of building another trading application.
-
-## 2. Version one: separating Connect and Share
-
-### 2.1 Components and responsibilities
-
-The initial stack was JDK 17, Spring Boot, MyBatis Plus, MongoDB, Kafka, XXL-Job, Redis, Redisson and Vue 3.
-
-| Component | Responsibility | Deployment |
+| Role | Responsibility | Scaling consideration |
 | --- | --- | --- |
-| Connect | WebSocket clients receive upstream prices and write them to MongoDB | Clustered |
-| Share | WebSocket server distributes prices; HTTP endpoints provide candlestick queries | Clustered |
-| XXL-Job | Schedules minute, hour, day, week, month and year candlestick tasks | Scheduled jobs |
-| Redis / Redisson | Coordination, distributed locks and short-lived shared state | Shared infrastructure |
+| Connect / ingestion | Connect upstream and update quotes in MongoDB | Upstream connections and subscriptions |
+| Share / distribution | Manage authorization and subscriptions, query prices and push over WebSocket | Downstream connections and delivery load |
+| Tasks | Schedule candlestick work with Redis / Redisson coordination | Avoid concurrent duplicate work |
 
-The principal data path was:
-
-```text
-Upstream WebSocket
-        ↓
-Connect cluster
-        ↓ every price update
-MongoDB: shared source of truth
-        ├── Share reads latest prices → downstream WebSocket
-        └── Candlestick aggregation → HTTP queries / gap filling
-```
-
-Live prices were keyed by pairs such as `WIF-USDC`. Candlesticks were aggregated by minute, hour, day, week, month and year, using time as the unique dimension and recording open, high, low and close.
-
-### 2.2 What the design solved
-
-The reasoning was coherent:
-
-- Connect and Share could scale independently.
-- Shared MongoDB state avoided differences caused by relying solely on local memory.
-- Redisson locks coordinated candlestick jobs to prevent duplicate cluster execution.
-- Upstream connections, downstream distribution and historical queries had clear responsibilities.
-
-The issue was that the data path did not distinguish live state from historical facts.
-
-### 2.3 Kafka's supporting role
-
-Kafka asynchronously carried messages outside the core real-time path. Its uses were distributed across services, but it was not a broadcast bus for every price update.
-
-WebSocket monitoring was a typical use. Connection services published connection status, disconnections and monitoring events. The management service consumed them, wrote to MongoDB and pushed updates to administration clients:
+MongoDB shared state across services, allowing distribution instances to read ingestion output without accessing another instance's memory.
 
 ```text
-Connection service → Kafka → Management consumer
-                                ├── MongoDB
-                                └── Administration WebSocket
+Upstream WebSocket → Ingestion → Latest quotes in MongoDB
+                                           ↓ Polling
+                                    Distribution → Downstream WebSocket
 ```
 
-This decoupled connection and management services. A temporary management outage did not require upstream ingestion to stop or synchronously wait for administration processing.
+Latest quotes overwrote instrument records to bound record counts. Bounded records did not bound I/O: updates still required database work, and queries and distribution continued.
 
-Connection modules also retained Kafka consumer configurations for events, monitoring state and some asynchronous tasks. Quotes still followed this path:
+Keys also need a scope. The same pair may exist on different platforms or product types. Candlestick identity needs source, instrument, interval and start time. Pair text or a timestamp alone cannot distinguish these in a shared namespace.
+
+Kafka mainly carried monitoring events and service notifications. Ingestion published WebSocket connection status; the management service consumed it, stored it in MongoDB and notified administration clients. Kafka was not a mandatory broadcast bus for every quote and did not replace the database in live distribution.
+
+A shared database reduced coordination among separate instance-local copies. It did not guarantee every reader saw the same value simultaneously: read timing, deployment settings and update order still mattered.
+
+## 2. Two pressure paths: quote I/O and candlestick waits
+
+The first pressure came from frequent quote writes and reads. Ingestion continuously updated records, while distribution polled by client subscription. Multiple clients could cause repeated reads of the same quote.
 
 ```text
-Upstream WebSocket → Connection service → MongoDB
-    → Management polling → Downstream WebSocket
+Quote update → Database write
+                 → One or more subscription queries
+                 → Push to multiple connections
 ```
 
-Kafka handled monitoring and service notifications alongside that path; MongoDB remained the shared source for real-time prices.
+Read load depended on both market activity and client count. Polling and task scans could generate I/O even without changing prices. High I/O under low business load needs diagnosis through queries, scans and task frequency; it is not proof of an inherent MongoDB limitation.
 
-## 3. Production problems: persistence and blocking calls in critical paths
+The second pressure came from candlestick queries and gap filling. Slow upstream HTTP calls occupied platform threads. Continuing arrivals accumulated in connection pools, thread pools and queues, eventually affecting other requests.
 
-### 3.1 Read and write amplification
+These required separate changes: reduce database work for latest prices, and control candlestick waiting and concurrency. More service instances could simply direct more work at the same database or provider.
 
-Prices update continuously, frequently and in small increments. Every upstream update was written to MongoDB and then read by Share before distribution:
+This service supplied latest snapshots and periodic updates rather than replaying every quote. Its latest state could therefore be rebuilt upstream. Tick replay, auditing or exact reconstruction would require a different retention design.
+
+## 3. Version two: one process for the real-time path
+
+JDK 21, Spring Boot, Netty, MySQL, Redis and Kafka supported one independently deployable application containing connections, price state, subscriptions and distribution. Databases and messaging remained external infrastructure.
+
+Upstream callbacks triggered distribution directly and maintained latest snapshots in memory. New subscribers could read an existing snapshot. The logical path became:
 
 ```text
-One upstream change
-  → One database write
-  → One or more database reads
-  → Pushes to one or more downstream connections
+Upstream WebSocket → In-process market-data handling
+                       ├─ Update latest snapshot
+                       └─ Route subscriptions → Downstream WebSocket
 ```
 
-The database became part of the real-time critical path. Even instruments without active subscribers could still generate I/O through polling, aggregation and task scans. As connections and instrument counts grew, storage carried more work than its essential responsibility required.
+Neither branch needed a MongoDB write followed by distribution polling. Removing database mediation and network round trips reduced work in the hot path; latency and throughput gains still require comparable measurements.
 
-The crucial observation was that **the latest price is recoverable runtime state, not a business fact that must be stored update by update.** Reconnecting to the source can rebuild that state.
+Latest quotes were keyed by platform and instrument. Multiple sources offer choices, but identically named assets, quote units and contracts may differ. Integration alone does not provide automatic failover. Switching needs mappings, priorities, freshness rules and downstream notification semantics.
 
-### 3.2 Blocking HTTP calls amplified resource contention
+Redis periodically stored quote and order-book snapshots for restart recovery. A snapshot shortens the empty period; it does not prove freshness or recover every missed update. Freshness-sensitive uses should consider source and local receipt timestamps, treating data as ready only after suitable upstream synchronization.
 
-Candlestick queries and gap filling required many concurrent HTTP requests. When upstream responses slowed, platform threads in the traditional threading model remained blocked. Requests accumulated, increasing contention between connection pools, thread pools and task queues:
+MySQL held durable business data such as instruments and authorizations. Candlestick queries used upstream APIs and Redis interval caches; that path did not depend on a complete local history archived in MySQL.
 
-```text
-Upstream latency rises → HTTP calls occupy platform threads
-  → Thread-pool queues grow → Tasks take longer
-  → Connections and queued work accumulate → Overall responses slow
-```
+### Netty changes the connection model, not a fixed capacity guarantee
 
-The issue was neither an inherent inability of MongoDB to handle market data nor the mere use of synchronous HTTP. The live-data access pattern and candlestick concurrency model did not fit the available resources. One made storage a bottleneck; the other exhausted application thread resources.
+Netty provided event-driven long-lived connections and asynchronous distribution. Tomcat capacity also depends on protocol implementation, configuration, operating-system limits and application behavior; there is no single universal WebSocket ceiling explaining the choice.
 
-## 4. Version two: one real-time service
+Netty event loops must still avoid slow HTTP, blocking locks and heavy computation. Slow clients can accumulate outbound data. Capacity work needs to cover connection counts, pending bytes, event-loop latency and client consumption rates.
 
-The second stack used JDK 21, Spring Boot, MyBatis Plus, Netty, MySQL, Redis, Kafka and Vue 3. Connect and Share became one independently deployable application. Kafka supported asynchronous scheduling and burst absorption outside the live quote path.
+Where consumers need only latest quotes, coalescing unsent snapshots may be appropriate. Order-book deltas can depend on sequence and ordering; dropping them under the same rule may require fetching a full snapshot again.
 
-### 4.1 Organizing data by lifetime
+## 4. Candlesticks: queues, caches and virtual threads solve different problems
 
-| Data | Lifetime | Storage | Reason |
-| --- | --- | --- | --- |
-| Latest prices | Short-lived, recoverable upstream | JVM memory | Avoid persistence and reads in the real-time path |
-| Historical candlesticks | Long-lived, queried retrospectively | MySQL | Interval aggregation, gap filling and stable queries |
-| Coordination state | Short-lived, shared across instances | Redis | Locks, coordination and necessary shared state |
+WebSocket candlestick requests went to `socket-candlestick-topic`. Consumers queried upstream APIs, processed caches, removed duplicates, checked data and delivered results. Scheduled candlestick, mini-chart and price-change tasks also published messages for asynchronous processing.
 
-The new path became:
+Kafka moved slow work away from WebSocket handling and absorbed short bursts. It did not increase provider quotas. Sustained arrivals beyond consumption capacity merely moved waiting into a queue. Producer send behavior also needs inspection: using Kafka alone does not prove an event loop never blocks.
 
-```text
-Upstream WebSocket → Unified connection layer
-    ├── Latest prices in JVM memory → Subscription routing → Netty push
-    └── Interval aggregation → Batch writes to MySQL history
-```
+Periodic tasks used virtual threads to query multiple instruments, reducing platform-thread occupancy for I/O that can unmount. JDK 21 still has pinning scenarios, including `synchronized` regions; not every blocking operation frees its carrier. Virtual threads add neither bandwidth, connection capacity nor upstream quota. Bound in-flight calls, set timeouts and control retry backoff.
 
-### 4.2 Implementation decisions
+Candlestick processing reused cached intervals, fetched missing ranges and checked timestamps and continuity. Correctness still requires explicit rules:
 
-- **Unified connections.** Connection management, reconnection and subscriptions were no longer duplicated for each business project.
-- **Latest prices in memory.** Live reads and writes bypassed the database, avoiding persistence and query amplification.
-- **Batch candlestick persistence.** Aggregated intervals were written to MySQL separately from live distribution.
-- **Netty for long-lived connections.** Its event-driven model suited many connections and asynchronous pushes.
-- **Subscriptions grouped by pair.** Multiple clients shared an upstream subscription and one in-memory state for an instrument.
-- **Kafka for asynchronous jobs.** Consumers performed candlestick queries, caching, validation and result delivery, isolating slow HTTP from WebSocket event processing.
-- **Virtual threads for blocking calls.** JDK 21 virtual threads reduced platform-thread occupancy while Kafka consumers waited on HTTP I/O.
+- Cache keys must distinguish source, instrument and interval, while unfinished candles must remain refreshable.
+- Market closures and trading sessions prevent treating every calendar gap as missing data.
+- Calendar weeks, months and years need timezone and boundary definitions rather than universal fixed millisecond lengths.
+- Open/close adjustments need business semantics. Real gaps between candles must not be overwritten merely to make charts continuous.
 
-Virtual threads do not make slow APIs faster. Upstream calls still require timeouts, rate limits, circuit breakers, retry backoff and connection-pool isolation. The improvement concerns thread utilization, not upstream service quality.
+These determine whether cached data can answer a query, and why live snapshots and historical candles need distinct lifecycles.
 
-### 4.3 Kafka: scheduling and queue management
+## 5. Queue management: intended protection versus actual guarantees
 
-Kafka orchestrated tasks and absorbed bursts. Quotes still followed “upstream WebSocket → JVM memory → Netty push.” Queuing was reserved for work that could block, wait or require controlled concurrency.
+A periodic task attempted to delete the candlestick topic above a size threshold. On inspection, however, it combined partition replica and in-sync-replica counts rather than measuring messages or consumer lag. It did not establish reliable backlog protection.
 
-There were three main uses:
+Backlog assessment needs partition end offsets compared with committed offsets for the relevant consumer group, plus the age of the oldest waiting work. If consumers commit early and finish work asynchronously, in-process outstanding tasks need separate measurement.
 
-1. **WebSocket candlestick requests.** Requests went to `socket-candlestick-topic`. Consumers queried upstream APIs, cached and checked continuity, then delivered results. Slow responses were waited on by consumers rather than Netty event-processing threads.
-2. **Periodic candlestick jobs.** Minute candlesticks, mini charts and price-change tasks were published by `@Scheduled` and consumed by `@KafkaListener`. Redis locks prevented duplicate execution; virtual threads queried multiple instruments concurrently; results went to Redis and subscribed clients.
-3. **Queue capacity management.** A periodic task checked designated topics and triggered management actions above a threshold. For safely repeatable candlestick queries, a topic could be cleared or recreated and clients could request again. This was a capacity-protection measure, not a replacement for consumer limits, timeouts and retry policies.
+Deleting a topic loses pending requests and disrupts its producers and consumers. Even retryable queries need clients to learn that a request did not complete. Topic deletion should not serve as routine burst control.
 
-Kafka thus isolated waiting and bursty candlestick work from long-lived connection handling without becoming part of quote delivery.
+More controlled improvements include expiring stale tasks, bounding admission and consumer concurrency, coalescing duplicate queries and defining retries and failure responses. WebSocket tasks also need request correlation and valid connection routing: completion after disconnect does not establish delivery.
 
-## 5. Why consolidate instead of splitting further?
+## 6. Benefits and new boundaries
 
-Consolidation put closely ordered work into the same deployment unit while preserving modules:
+| Concern | First version | Second version |
+| --- | --- | --- |
+| Latest quotes | MongoDB writes and polling | JVM state and callback-driven distribution |
+| Slow tasks | Synchronous waits competing for threads | Kafka queuing; virtual threads for periodic jobs |
+| Restart state | Read shared storage | Restore Redis snapshots, then synchronize upstream |
+| Main cost | Real-time database I/O and service coordination | Process-wide failures, recovery and capacity control |
 
-```text
-Receive price → Update memory → Match subscriptions → Push downstream
-```
+One process reduced cross-instance state coordination while giving a process failure a shared impact on ingestion and distribution. Redis snapshots do not replicate WebSocket connections or make two instances share subscriptions and send state. Multiple active instances still need upstream allocation, subscription ownership, state synchronization and reconnection recovery.
 
-At that stage:
+Future separation should be informed by quote freshness, delivery latency, event-loop latency, outbound backlog, memory, upstream errors and recovery time. Availability targets can require redundancy and failure isolation before capacity runs out.
 
-- State updates and distribution interacted frequently.
-- Live state could be rebuilt upstream without sharing a complete history across nodes.
-- Capacity had not demonstrated a need to scale every component separately.
-- Fewer network hops and shared-storage operations reduced complexity more directly than further service separation.
+Consolidation first removed unnecessary shared-storage polling from RateHub's live path. Its next evolution must answer which component needs independent scaling, which state needs redundancy and how long recovery may take. Architecture earns its value through verifiable answers to those constraints.
 
-Internal boundaries remained around connections, price state, subscription routing, aggregation and history, preserving a future migration path.
+## References
 
-## 6. Lessons and conditions for future separation
-
-The evolution can be summarized as:
-
-```text
-Distributed components → Database in the live path
-  → Distinguish short-lived state from history
-  → Consolidate the real-time path → Preserve internal boundaries
-```
-
-Version one emphasized scalability and consistent shared state. Version two emphasized low latency, low I/O and manageable complexity. Their suitability depended on business scale, data lifetimes and availability targets.
-
-Both used Kafka, but in different positions:
-
-| Version | Main Kafka role |
-| --- | --- |
-| First | WebSocket monitoring events and asynchronous state notifications between services |
-| Second | Candlestick requests, scheduled gap filling and related jobs |
-
-The shorter quote path came from replacing shared MongoDB state with JVM memory and triggering pushes from upstream callbacks, rather than replacing Kafka with another queue.
-
-Further separation would need evidence of one or more constraints:
-
-- A clear limit in single-instance connections or JVM memory.
-- Downstream throughput requiring independent scaling.
-- A need to isolate upstream connection management from business releases.
-- Availability targets requiring redundant live state across nodes.
-- Monitoring showing that separation would reduce overall complexity.
-
-Architecture is a set of hypotheses tested as constraints change. Each split or consolidation should identify the bottleneck it resolves and explain why the added complexity is worthwhile now.
+- [Oracle: JDK 21 virtual threads](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html)
+- [Apache Kafka: design and consumer positions](https://kafka.apache.org/41/design/design/)
+- [Netty: user guide](https://netty.io/wiki/user-guide-for-4.x.html)

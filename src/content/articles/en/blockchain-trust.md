@@ -10,6 +10,10 @@ On March 20, 2024, I encountered a database extortion incident. The database had
 
 At the approximate exchange rate then, the demand was about RMB 5,500. The message alone could not establish whether the attacker actually held a recoverable copy.
 
+![Screenshot of the database extortion note: an English message demanding 0.0117 BTC within 48 hours and threatening to publish and delete the data](../../../assets/articles/blockchain-trust/database-ransom-note.png)
+
+*The extortion message left in the database at the time. It records the attacker's demands, but does not establish that they held a copy of the data.*
+
 The incident raised a question: why demand bitcoin? How does a system without a bank keeping accounts determine who controls the money?
 
 We can start with keys and records, then move to consensus, smart contracts and the limits of decentralization.
@@ -36,6 +40,8 @@ To transfer value, it selects spendable outputs, creates new outputs and signs u
 
 For ordinary self-custody wallets, whoever controls the private key or seed phrase can generally authorize the relevant transfers. Software can be reinstalled, but there is usually no central support desk that can restore control after keys are lost.
 
+A signature establishes authorization by the relevant key, not that the person understood the contents or that a recipient is trustworthy. Malicious sites can induce transfers or token approvals; an approved contract may spend tokens within its allowance. Key protection therefore needs to be accompanied by checking recipients, allowances and call contents.
+
 An exchange account is different. Its displayed balance is usually a record in the platform's internal ledger, while the platform holds on-chain keys. Withdrawals depend on its actual assets, service availability and rules.
 
 An asset being on-chain and a user personally controlling its key are separate facts. The first question is who can actually sign a transfer.
@@ -59,6 +65,8 @@ A transaction included in a block gains a confirmation. Subsequent blocks increa
 
 Invalid transactions are rejected. A reorganization between valid branches can instead change confirmation status. These are different events and cannot both be described as the majority denying an action and making it disappear.
 
+This also bounds hash-power attacks. A sufficiently powerful attacker may reorganize recent history, double-spend their own payments or censor transactions. Hash power alone cannot forge other people's signatures or make full nodes following the original rules accept arbitrary issuance. Transaction validity and history ordering provide distinct protections.
+
 ### Where mining income comes from
 
 A valid block allows its miner to claim the block subsidy and included transaction fees through a special transaction.
@@ -75,21 +83,23 @@ Bitcoin demonstrates verifiable transaction history. Platforms such as Ethereum 
 
 A smart contract is code and state deployed at a particular address. Users submit transactions invoking its functions; the network executes the rules and incorporates the results into state.
 
-A whitepaper explains a design, a protocol defines behavior, node software implements the protocol, and a smart contract is a program deployed on a supported chain. These are related but distinct.
+Nodes must obtain consistent results from the same execution inputs. Ethereum contracts therefore cannot directly fetch arbitrary HTTP data like an ordinary backend. External facts need mechanisms such as oracles to bring them on-chain.
+
+Execution is metered and limited by gas. Failed or reverted calls undo their associated state changes, but senders generally still pay for computation consumed. An outer contract can catch an internal call's failure and continue, so a failed subcall need not revert the entire transaction. A successful receipt likewise does not guarantee the economic outcome the user expected.
 
 A token contract, for example, can track balances, transfers and allowances. Minting, pausing and freezing powers depend on its implementation and administration.
 
 ### Why one transaction can show several transfers
 
-The original presentation included a Polygon transaction showing three token-transfer events from one contract interaction.
+Consider this Polygon transaction, which shows three token-transfer events from one contract interaction.
 
 ![Historical transaction screenshot with DAI transfers, an aToken mint event and a separately listed transaction fee](../../../assets/articles/blockchain-trust/token-transfers.webp)
 
-*Cropped from the original presentation to show transfers and fees. MATIC terminology and dollar estimates are historical values from that page.*
+*MATIC terminology and dollar estimates reflect the page at the time of the screenshot.*
 
 The transaction involved multiple DAI transfers and an aToken event originating from the zero address. One business action can call multiple contracts and change several states, with explorers displaying the related events separately.
 
-Token events and network fees must be distinguished. The fee has its own field; the third event cannot simply be treated as a mining fee. Nor should the displayed token amounts be assumed equivalent without checking precision and conversion rules.
+Token-transfer events and network fees describe different information. Fees have their own field. Token amounts need precision and conversion rules to interpret, rather than an assumption that different tokens have equal value.
 
 Events help wallets, explorers and indexers present results. Verifying the business operation further requires contract addresses, code and actual state.
 
@@ -99,7 +109,7 @@ Minting an ERC-20 token generally increases total supply and an address's balanc
 
 Common implementations reduce supply on burns and emit events to the zero address. OpenZeppelin explicitly distinguishes ordinary transfers, minting and burning in its balance and supply logic.
 
-The zero address is a special marker here. An explorer display alone does not prove supply changed. Sending assets to an inaccessible address is not necessarily the same as reducing the contract's recorded total supply.
+The zero address is a special marker here. An explorer display alone does not prove supply changed: contracts can emit events without corresponding state changes, and sending assets to an inaccessible address does not necessarily reduce recorded total supply. Inspect the actual logic.
 
 Deploying a token establishes accounting and transfer rules, not lasting demand or value. Liquidity improves trading conditions but does not guarantee durable value, and scarcity alone does not explain price.
 
@@ -129,6 +139,8 @@ Stablecoins provide a familiar unit of account while retaining reliance on issue
 
 Contracts may expose upgrade, pause or mint powers. If a small number of keys controls them, users still depend on administrators and key security.
 
+Check whether published source corresponds to deployed bytecode and whether an upgradeable proxy controls the current implementation. Verified source enables inspection; it is not a security audit or proof of no vulnerabilities. Token approvals, proxy upgrades and administrative keys belong in the review alongside business logic.
+
 Contracts needing real-world prices or other external facts also rely on oracles. Programs execute the supplied data, but its accuracy and timeliness have their own trust and failure boundaries.
 
 For a particular application, I ask:
@@ -148,16 +160,19 @@ As a developer, I look for collaboration problems where several parties maintain
 
 They also impose costs: consensus constrains throughput and adds waiting; public records complicate privacy; key loss and contract defects may have irreversible consequences. A single organization with clear authority may be better served by databases, audit logs and backups.
 
+For sensitive data such as medical reports, lasting public verifiability can conflict with confidentiality, deletion and access control. Hashing contents does not automatically solve privacy: guessable data can be enumerated and compared, while metadata may expose relationships. Evidence designs must address original storage, key management, associations and verification permissions separately from the decision to use a chain.
+
 Returning to the extortion incident, blockchain can be the payment mechanism, but database access control and recovery still belong to the original system. Decentralizing one component does not complete the security of the rest.
 
 The art is arranging control and verification explicitly: what rules guarantee, what institutions still provide, and who bears failures. Understanding those boundaries makes it possible to judge the problem solved and whether the costs are justified.
 
 ## References
 
-Adapted from my presentation *Blockchain: The Art of Decentralization*. The incident and transaction example came from that presentation; mechanism explanations were checked against:
+For details on the mechanisms discussed in this article, see:
 
 - [Bitcoin Core: validation, cumulative-work selection and subsidies](https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp)
 - [Ethereum: smart contracts](https://ethereum.org/en/developers/docs/smart-contracts/)
+- [Ethereum: transactions, gas and execution outcomes](https://ethereum.org/en/developers/docs/transactions/)
 - [ERC-20: token interfaces and Transfer events](https://eips.ethereum.org/EIPS/eip-20)
 - [OpenZeppelin: transfers, minting and burning](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol)
 

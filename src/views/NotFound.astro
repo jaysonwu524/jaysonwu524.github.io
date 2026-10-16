@@ -1,0 +1,43 @@
+---
+import { ArrowLeft, ArrowRight } from '@lucide/astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { getLocale, languageNames, languageTags, locales, localePath, messages } from '../i18n/ui';
+const locale = getLocale(Astro.url.pathname);
+const t = messages[locale];
+const labelKeys = ['notFound', 'notFoundDescription', 'backHome', 'home', 'articles', 'projects', 'resume', 'skip', 'footerDescription', 'explore', 'contact', 'rights', 'top', 'mainNav', 'language', 'darkMode', 'switchLight', 'switchDark'] as const;
+const translations = Object.fromEntries(locales.map((item) => [item, {
+  name: languageNames[item], lang: languageTags[item],
+  labels: Object.fromEntries(labelKeys.map((key) => [key, messages[item][key]])),
+}]));
+---
+
+<SiteLayout title={`404 · ${t.notFound} | Jayson Wu`} description={t.notFoundDescription} noindex>
+  <section class="container not-found" aria-labelledby="not-found-title">
+    <p class="error-code" aria-hidden="true">404</p>
+    <h1 id="not-found-title" data-ui-text="notFound">{t.notFound}</h1>
+    <p class="error-description" data-ui-text="notFoundDescription">{t.notFoundDescription}</p>
+    <nav class="error-links" aria-label={t.explore}>
+      <a class="error-home" href={localePath(locale)} data-error-path=""><ArrowLeft class="ui-icon" aria-hidden="true" /><span data-ui-text="backHome">{t.backHome}</span></a>
+      <a href={localePath(locale, 'articles')} data-error-path="articles"><span data-ui-text="articles">{t.articles}</span><ArrowRight class="ui-icon" aria-hidden="true" /></a>
+      <a href={localePath(locale, 'projects')} data-error-path="projects"><span data-ui-text="projects">{t.projects}</span><ArrowRight class="ui-icon" aria-hidden="true" /></a>
+    </nav>
+  </section>
+  <script type="application/json" data-error-translations set:html={JSON.stringify(translations).replace(/</g, '\\u003c')} />
+</SiteLayout>
+
+<script>
+  import '../scripts/not-found';
+</script>
+
+<style>
+  .not-found { padding-block: var(--space-7); min-height: min(620px, calc(100svh - var(--header-height))); }
+  .error-code { margin-bottom: var(--space-3); color: var(--accent); font: 400 var(--text-title)/1 var(--mono); letter-spacing: .08em; }
+  h1 { margin: 0 0 var(--space-3); color: var(--ink); font: 500 var(--text-display)/1.5 var(--display); }
+  .error-description { max-width: 38em; margin-bottom: var(--space-4); color: var(--ink-soft); }
+  .error-links { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+  .error-links a { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 44px; color: var(--ink-soft); }
+  .error-links a:hover { color: var(--accent); }
+  .error-links .error-home { padding: var(--space-1) var(--space-2); border: 1px solid currentColor; border-radius: var(--radius); color: var(--ink); transition: background var(--transition), color var(--transition); }
+  .error-links .error-home:hover { color: var(--accent); background: var(--accent-soft); text-decoration: none; }
+  @media (max-width: 767px) { .not-found { padding-block: var(--space-6); } }
+</style>

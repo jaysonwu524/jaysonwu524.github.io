@@ -1,0 +1,101 @@
+---
+import { ArrowLeft, ArrowRight, X, ZoomIn, ZoomOut, RotateCcw } from '@lucide/astro';
+import { getLocale, messages } from '../i18n/ui';
+const t = messages[getLocale(Astro.url.pathname)];
+---
+
+<dialog class="image-preview" aria-labelledby="image-preview-title" data-image-preview
+  data-open-label={t.previewImage} data-loading-label={t.previewLoading} data-error-label={t.previewError}>
+  <header class="preview-toolbar">
+    <div class="preview-heading">
+      <h2 id="image-preview-title">{t.previewImage}</h2>
+      <span class="preview-count" data-preview-count aria-hidden="true"></span>
+    </div>
+    <div class="preview-controls">
+      <button type="button" data-preview-out aria-label={t.previewZoomOut} title={t.previewZoomOut}><ZoomOut class="ui-icon" aria-hidden="true" /></button>
+      <span class="preview-scale" data-preview-scale aria-live="polite">100%</span>
+      <button type="button" data-preview-in aria-label={t.previewZoomIn} title={t.previewZoomIn}><ZoomIn class="ui-icon" aria-hidden="true" /></button>
+      <button type="button" data-preview-reset aria-label={t.previewReset} title={t.previewReset}><RotateCcw class="ui-icon" aria-hidden="true" /></button>
+    </div>
+    <button type="button" class="preview-close" data-preview-close aria-label={t.previewClose} title={t.previewClose} autofocus><X class="ui-icon" aria-hidden="true" /></button>
+  </header>
+  <div class="preview-viewport" data-preview-viewport tabindex="0" role="region" aria-label={t.previewImage}>
+    <div class="preview-canvas" data-preview-canvas>
+      <img data-preview-full alt="" draggable="false" hidden />
+    </div>
+    <p class="preview-status" data-preview-status role="status" hidden></p>
+  </div>
+  <footer class="preview-footer">
+    <button type="button" data-preview-previous aria-label={t.previewPrevious} title={t.previewPrevious}><ArrowLeft class="ui-icon" aria-hidden="true" /></button>
+    <p data-preview-caption aria-live="polite"></p>
+    <button type="button" data-preview-next aria-label={t.previewNext} title={t.previewNext}><ArrowRight class="ui-icon" aria-hidden="true" /></button>
+  </footer>
+</dialog>
+
+<script>
+  import '../scripts/image-preview';
+</script>
+
+<style>
+  .image-preview {
+    --preview-inset: var(--space-2);
+    --preview-control-size: 44px;
+    --preview-image-gutter: 24px;
+    position: fixed;
+    inset: 0;
+    width: calc(100% - var(--preview-inset) * 2);
+    height: calc(100dvh - var(--preview-inset) * 2);
+    max-width: none;
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius);
+    color: var(--ink);
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .image-preview[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; animation: preview-enter 240ms cubic-bezier(.2, .7, .2, 1) both; }
+  .image-preview::backdrop { background: color-mix(in srgb, var(--ink) 22%, transparent); backdrop-filter: blur(10px); animation: preview-backdrop-enter 240ms ease both; }
+  .image-preview[data-closing='true']::backdrop { animation: preview-backdrop-exit 180ms ease both; }
+  .preview-toolbar, .preview-footer { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
+  .preview-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+  .preview-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); }
+  h2 { margin: 0; min-width: 0; font: 500 var(--text-small)/1.6 var(--sans); color: var(--ink-soft); }
+  .preview-count, .preview-scale { color: var(--ink-muted); font: 400 var(--text-meta)/1 var(--mono); font-variant-numeric: tabular-nums; }
+  .preview-scale { min-width: 5ch; text-align: center; }
+  .preview-controls { display: flex; align-items: center; flex-shrink: 0; padding-inline: 4px; border-radius: 999px; background: var(--surface-soft); }
+  .preview-close { justify-self: end; }
+  button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: var(--preview-control-size); height: var(--preview-control-size); padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--ink); cursor: pointer; transition: background var(--transition), color var(--transition), transform var(--transition); }
+  button:hover, button:focus-visible { background: var(--surface-soft); color: var(--accent); }
+  button:active { transform: scale(.96); }
+  button:disabled { opacity: .3; cursor: default; }
+  button:disabled:hover { background: transparent; color: var(--ink); }
+  .preview-viewport { position: relative; display: flex; min-width: 0; min-height: 0; padding: var(--preview-image-gutter); overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+  .preview-viewport[data-zoomed='false'] { touch-action: pan-y pinch-zoom; }
+  .preview-canvas { flex: 0 0 auto; margin: auto; }
+  .preview-canvas img { display: block; width: 100%; max-width: none; height: 100%; object-fit: contain; user-select: none; }
+  .preview-canvas img[hidden] { display: none; }
+  .preview-status { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: var(--space-3); text-align: center; color: var(--ink-soft); }
+  .preview-status[hidden] { display: none; }
+  .preview-viewport[data-zoomed='true'] { cursor: grab; }
+  .preview-viewport[data-dragging='true'] { cursor: grabbing; }
+  .preview-footer { width: min(100%, 800px); margin-inline: auto; padding-bottom: var(--space-3); }
+  .preview-footer p { flex: 1; margin: 0; color: var(--ink-soft); font-size: var(--text-small); line-height: 1.6; text-align: center; text-wrap: balance; }
+  @keyframes preview-enter { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: none; } }
+  @keyframes preview-backdrop-enter { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes preview-backdrop-exit { from { opacity: 1; } to { opacity: 0; } }
+  @media (max-width: 767px) {
+    .image-preview { --preview-inset: 0px; --preview-image-gutter: 12px; width: 100%; border: 0; border-radius: 0; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+    .preview-toolbar, .preview-footer { padding-inline: var(--space-1); gap: var(--space-1); }
+    .preview-heading { display: block; }
+    .preview-count { display: block; margin-top: var(--space-1); }
+    .preview-controls { padding: 0; }
+    h2 { font-size: var(--text-meta); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .image-preview[open], .image-preview::backdrop, .image-preview[data-closing='true']::backdrop { animation: none; }
+    button { transition: none; }
+  }
+  @media print { .image-preview { display: none !important; } }
+</style>

@@ -17,16 +17,16 @@ const copyrightYear = new Date().getFullYear();
 		<div class="footer-main">
 			<div class="footer-identity">
 				<p class="footer-name">jaysonwu524.com</p>
-				<p class="footer-description">{t.footerDescription}</p>
+				<p class="footer-description" data-ui-text="footerDescription">{t.footerDescription}</p>
 			</div>
 			<nav class="footer-group" aria-labelledby="footer-nav-title">
-				<h2 class="footer-heading" id="footer-nav-title">{t.explore}</h2>
+				<h2 class="footer-heading" id="footer-nav-title" data-ui-text="explore">{t.explore}</h2>
 				<div class="footer-nav-links">
 					{navItems.map((item) => <a href={item.href}>{item.label}</a>)}
 				</div>
 			</nav>
 			<div class="footer-group">
-				<h2 class="footer-heading">{t.contact}</h2>
+				<h2 class="footer-heading" data-ui-text="contact">{t.contact}</h2>
 				<div class="footer-social-links">
 					<a href="https://github.com/jaysonwu524" target="_blank" rel="noopener noreferrer">GitHub<ArrowUpRight class="ui-icon" aria-hidden="true" focusable="false" /></a>
 					<a href="https://blog.csdn.net/CatalpaWoo" target="_blank" rel="noopener noreferrer">CSDN<ArrowUpRight class="ui-icon" aria-hidden="true" focusable="false" /></a>
@@ -35,8 +35,8 @@ const copyrightYear = new Date().getFullYear();
 			</div>
 		</div>
 		<div class="footer-bottom">
-			<p class="footer-copyright">Copyright © {copyrightYear} Jayson Wu. <span>{t.rights}</span></p>
-			<a class="footer-top-link" href="#site-top">{t.top}<ArrowUp class="ui-icon" aria-hidden="true" focusable="false" /></a>
+			<p class="footer-copyright">Copyright © {copyrightYear} Jayson Wu. <span data-ui-text="rights">{t.rights}</span></p>
+			<a class="footer-top-link" href="#site-top"><span data-ui-text="top">{t.top}</span><ArrowUp class="ui-icon" aria-hidden="true" focusable="false" /></a>
 		</div>
 	</div>
 </footer>

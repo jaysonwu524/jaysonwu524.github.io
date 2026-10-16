@@ -2,19 +2,22 @@
    System fonts keep Chinese text readable without remote font requests. */
 :root {
   color-scheme: light dark;
-  --bg: #faf9f6;
-  --surface-soft: #f0eee9;
-  --ink: #292823;
-  --ink-soft: #56554f;
-  --ink-muted: #706e67;
-  --line: #ddd9d1;
-  --accent: #a83d30;
-  --accent-soft: #f4e7e2;
+  --bg: light-dark(#faf9f6, #22221f);
+  --surface-soft: light-dark(#f0eee9, #2d2d28);
+  --ink: light-dark(#292823, #e5e3db);
+  --ink-soft: light-dark(#56554f, #c3c0b7);
+  --ink-muted: light-dark(#706e67, #aaa79e);
+  --line: light-dark(#ddd9d1, #45443d);
+  --accent: light-dark(#a83d30, #e2917e);
+  --accent-soft: light-dark(#f4e7e2, #48302a);
   --footer-bg: #292823;
   --footer-ink: #faf9f6;
   --footer-ink-muted: #c3c0b7;
   --footer-line: #56554f;
-  --code-bg: #f0eee9;
+  --code-bg: light-dark(#f0eee9, #2d2d28);
+  --avatar-filter: grayscale(1);
+  --avatar-blend: multiply;
+  --avatar-opacity: 1;
   --max-width: 1040px;
   --reading-width: 720px;
   --page-inset: 40px;
@@ -51,6 +54,9 @@
   text-rendering: optimizeLegibility;
 }
 
+:root[data-theme='light'] { color-scheme: light; }
+:root[data-theme='dark'] { color-scheme: dark; }
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-height) + var(--space-4)); }
 body { margin: 0; min-width: 320px; font-size: var(--text-body); line-height: 1.9; background: var(--bg); }
@@ -74,6 +80,24 @@ site-navigation { display: block; }
 .site-header { position: fixed; inset: 0 0 auto; height: var(--header-height); z-index: var(--layer-header); background: var(--bg); border-bottom: 1px solid var(--line); transform: translateY(calc(var(--header-collapse, 0) * -100%)); }
 .site-header:focus-within { transform: translateY(0); }
 .header-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); height: 100%; }
+.header-tools { display: flex; align-items: center; gap: var(--space-1); flex-shrink: 0; }
+.header-icon-button {
+  --header-control-size: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--header-control-size);
+  height: var(--header-control-size);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+  background: transparent;
+  cursor: pointer;
+  transition: color var(--transition), background-color var(--transition);
+}
+.header-icon-button:hover, .header-icon-button:focus-visible { color: var(--accent); background: var(--surface-soft); }
 .brand { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; color: var(--ink); }
 .brand:hover { color: var(--ink); text-decoration: none; }
 .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; background: var(--ink); color: var(--bg); border-radius: var(--radius); font: 600 0.65rem/1 var(--mono); }
@@ -89,6 +113,8 @@ html:lang(ja) { --sans: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Yu Gothi
 .nav-link:hover::after, .nav-link[aria-current='page']::after { transform: scaleX(1); }
 .more-link { display: inline-flex; align-items: center; min-height: 44px; gap: var(--space-1); font-size: var(--text-small); letter-spacing: 0.025em; }
 .ui-icon { display: block; flex-shrink: 0; width: var(--icon-size); height: var(--icon-size); stroke-width: var(--icon-stroke); }
+img[data-preview-image] { cursor: zoom-in; }
+img[data-preview-image]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .link-arrow { transition: transform var(--transition); }
 .more-link:hover .link-arrow, .more-link:focus-visible .link-arrow { transform: translateX(3px); }
 .more-link-back:hover .link-arrow, .more-link-back:focus-visible .link-arrow { transform: translateX(-3px); }
@@ -100,7 +126,7 @@ html:lang(ja) { --sans: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Yu Gothi
 .intro-links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); }
 .profile-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: var(--space-1) var(--space-3); border: 1px solid currentColor; border-radius: var(--radius); color: var(--accent); background: transparent; font-size: var(--text-small); letter-spacing: 0.025em; transition: color var(--transition), background-color var(--transition), border-color var(--transition); }
 .profile-link:hover, .profile-link:focus-visible { color: var(--bg); background: var(--accent); border-color: var(--accent); text-decoration: none; }
-.profile-avatar { width: var(--avatar-size); height: var(--avatar-size); object-fit: cover; aspect-ratio: 1; filter: grayscale(1); mix-blend-mode: multiply; }
+.profile-avatar { width: var(--avatar-size); height: var(--avatar-size); object-fit: cover; aspect-ratio: 1; filter: var(--avatar-filter); mix-blend-mode: var(--avatar-blend); opacity: var(--avatar-opacity); }
 .editorial-section { display: grid; grid-template-columns: var(--label-width) minmax(0, 1fr); gap: var(--space-5); padding-block: var(--space-5); border-top: 1px solid var(--line); }
 .editorial-section:last-child { padding-bottom: var(--space-7); }
 .section-label h2 { margin: 0 0 var(--space-1); font-size: var(--text-body); font-weight: 500; letter-spacing: 0.1em; }
@@ -158,25 +184,41 @@ html:lang(ja) { --sans: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Yu Gothi
 .project-header h1 > span { display: block; margin-top: var(--space-1); font-size: var(--text-title); line-height: 1.7; letter-spacing: 0.02em; }
 .project-kicker { margin: 0 0 var(--space-2); color: var(--accent); font-size: var(--text-small); letter-spacing: 0.08em; }
 .project-flow { margin-top: var(--space-4); padding: var(--space-3) var(--space-4); background: var(--surface-soft); }
-.project-flow h2, .project-related h2 { margin: 0 0 var(--space-2); font: 500 var(--text-section)/1.6 var(--display); letter-spacing: 0.04em; }
+.project-flow h2 { margin: 0 0 var(--space-2); font: 500 var(--text-section)/1.6 var(--display); letter-spacing: 0.04em; }
 .project-flow h2 { color: var(--ink-muted); font: 500 var(--text-small)/1.8 var(--sans); }
 .project-flow ol { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); margin: 0; padding: 0; list-style: none; }
 .project-flow li { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--ink); font-size: var(--text-body); }
 .project-flow .ui-icon { color: var(--accent); }
-.project-related { margin-top: var(--space-6); padding-top: var(--space-3); border-top: 1px solid var(--line); }
-.project-related a { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-2); border-bottom: 1px solid var(--line); color: var(--ink); font-size: var(--text-small); }
-.project-related a .ui-icon { flex-shrink: 0; color: var(--accent); transition: transform var(--transition); }
-.project-related a:hover { text-decoration: none; color: var(--accent); }
-.project-related a:hover .ui-icon { transform: translate(2px, -2px); }
-.project-followup { margin-top: var(--space-5); border-top: 1px solid var(--line); }
-.project-return { margin-top: var(--space-1); }
-.project-next { display: block; padding-block: var(--space-4); color: var(--ink); }
-.project-next-label { display: block; margin-bottom: var(--space-1); color: var(--ink-muted); font-size: var(--text-meta); }
-.project-next-name { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); font: 500 var(--text-title)/1.6 var(--display); }
-.project-next-name .ui-icon { transition: transform var(--transition); }
-.project-next-description { display: block; margin-top: var(--space-1); color: var(--ink-soft); font-size: var(--text-small); }
-.project-next:hover { text-decoration: none; color: var(--accent); }
-.project-next:hover .ui-icon, .project-next:focus-visible .ui-icon { transform: translate(2px, -2px); }
+.recommendation-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border-inline-start: 2px solid var(--accent);
+  color: var(--ink);
+  background: var(--surface-soft);
+  transition: color var(--transition), border-color var(--transition), background var(--transition), transform var(--transition);
+}
+.recommendation-card + .recommendation-card { margin-top: 2px; }
+.recommendation-card-copy { display: grid; gap: var(--space-1); min-width: 0; }
+.recommendation-card-label { color: var(--ink-muted); font: 400 var(--text-meta)/1.5 var(--sans); letter-spacing: 0.06em; }
+.recommendation-card-title {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 500 var(--text-body)/1.5 var(--display);
+}
+.recommendation-card .ui-icon { flex-shrink: 0; color: var(--ink-muted); transition: color var(--transition), transform var(--transition); }
+.recommendation-card:hover, .recommendation-card:focus-visible { text-decoration: none; color: var(--accent); border-color: var(--accent); background: var(--accent-soft); transform: translateX(2px); }
+.recommendation-card:hover .ui-icon, .recommendation-card:focus-visible .ui-icon { color: var(--accent); transform: translate(2px, -2px); }
+
+/* Shared detail-page ending. The component rule is intentionally stronger so
+   related content does not reintroduce its standalone separator inside this group. */
+.content-end .content-end-grid > .related-content { margin-top: 0; padding-top: 0; border-top: 0; }
 
 /* Reading surface */
 .article-back { margin-bottom: var(--space-4); }
@@ -213,6 +255,49 @@ html:lang(ja) { --sans: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Yu Gothi
 .project-body th:first-child, .project-body td:first-child { width: 24%; padding-left: 0; color: var(--ink); }
 .project-body th:last-child, .project-body td:last-child { padding-right: 0; }
 .project-body th { background: none; }
+.project-gallery {
+  --gallery-image-height: 380px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--space-5);
+  margin-block: var(--space-5) var(--space-6);
+}
+.project-gallery figure { min-width: 0; width: 100%; margin: 0; }
+.project-gallery--four { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); }
+.project-gallery img {
+  display: block;
+  width: 100%;
+  height: var(--gallery-image-height);
+  object-fit: contain;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.project-gallery figcaption {
+  margin-top: var(--space-2);
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+  line-height: 1.8;
+  text-align: center;
+}
+@media (max-width: 767px) {
+  .project-gallery {
+    --gallery-image-height: 320px;
+    display: flex;
+    align-items: start;
+    gap: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    margin-block: var(--space-4);
+    padding-bottom: var(--space-2);
+  }
+  .project-gallery figure {
+    flex: 0 0 min(68vw, 224px);
+    scroll-snap-align: center;
+  }
+}
 
 /* Full-width colophon: a dark closing surface with the same content alignment. */
 .site-footer { position: relative; background: var(--footer-bg); color: var(--footer-ink); font-size: var(--text-small); }
@@ -234,20 +319,18 @@ html:lang(ja) { --sans: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Yu Gothi
 .footer-copyright span { display: inline-block; }
 .site-footer .footer-top-link { flex-shrink: 0; color: var(--footer-ink-muted); font-size: var(--text-meta); }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #22221f;
-    --surface-soft: #2d2d28;
-    --ink: #e5e3db;
-    --ink-soft: #c3c0b7;
-    --ink-muted: #aaa79e;
-    --line: #45443d;
-    --accent: #e2917e;
-    --accent-soft: #48302a;
-    --code-bg: #2d2d28;
+@media screen {
+  :root[data-theme='dark'] { --avatar-filter: grayscale(1) invert(1); --avatar-blend: screen; --avatar-opacity: 0.85; }
+  :root[data-theme='dark'] .astro-code, :root[data-theme='dark'] .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
   }
-  .profile-avatar { mix-blend-mode: normal; opacity: 0.88; }
-  .astro-code, .astro-code span {
+}
+
+/* Preserve the system theme when JavaScript is unavailable. */
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) { --avatar-filter: grayscale(1) invert(1); --avatar-blend: screen; --avatar-opacity: 0.85; }
+  :root:not([data-theme]) .astro-code, :root:not([data-theme]) .astro-code span {
     color: var(--shiki-dark) !important;
     background-color: var(--shiki-dark-bg) !important;
   }
@@ -268,7 +351,7 @@ html:lang(ja) { --sans: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Yu Gothi
   .header-inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 60px 52px; gap: 0 var(--space-2); }
   .header-inner .brand { grid-column: 1; grid-row: 1; width: fit-content; gap: var(--space-1); }
   .header-inner .brand-name { display: inline; font-size: var(--text-meta); }
-  .header-inner .language-picker { grid-column: 2; grid-row: 1; }
+  .header-inner .header-tools { grid-column: 2; grid-row: 1; }
   .header-inner .site-nav { grid-column: 1 / -1; grid-row: 2; width: 100%; margin: 0; justify-content: space-between; align-self: start; }
   .header-inner .nav-link { min-height: 44px; padding-inline: var(--space-1); }
   .author-intro { grid-template-columns: minmax(0, 1fr) var(--avatar-size); padding-block: var(--space-5); gap: var(--space-3); align-items: start; }
@@ -319,7 +402,7 @@ html:lang(ja) { --sans: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Yu Gothi
 }
 
 @media print {
-  :root { --bg: #fff; --ink: #222; --ink-soft: #444; --ink-muted: #555; --line: #ccc; --accent: #333; --code-bg: #f4f4f4; --surface-soft: #f4f4f4; }
+  :root, :root[data-theme] { color-scheme: light; --bg: #fff; --ink: #222; --ink-soft: #444; --ink-muted: #555; --line: #ccc; --accent: #333; --code-bg: #f4f4f4; --surface-soft: #f4f4f4; }
   .site-header, .site-footer, .skip-link, .article-back { display: none; }
   .site-shell { padding-top: 0; }
   .container { width: 100%; }

@@ -1,5 +1,6 @@
 ---
 import LanguagePicker from './LanguagePicker.astro';
+import ThemeToggle from './ThemeToggle.astro';
 import { getLocale, localePath, messages } from '../i18n/ui';
 interface Props {
 	navItems: { href: string; label: string }[];
@@ -25,7 +26,10 @@ const isCurrent = (href: string) => href === home ? currentPath === home : curre
 					<a class="nav-link" href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
 				))}
 			</nav>
-			<LanguagePicker />
+			<div class="header-tools">
+				<LanguagePicker />
+				<ThemeToggle />
+			</div>
 		</div>
 	</header>
 </site-navigation>

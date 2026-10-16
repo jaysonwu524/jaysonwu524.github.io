@@ -3,15 +3,17 @@ import { render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import MoreLink from '../components/MoreLink.astro';
-import ArticleList from '../components/ArticleList.astro';
 import ArticleContents from '../components/ArticleContents.astro';
+import RelatedContent from '../components/RelatedContent.astro';
+import RecommendationCard from '../components/RecommendationCard.astro';
+import ShareAction from '../components/ShareAction.astro';
 import { localizedCollection } from '../i18n/content';
-import { getLocale, localePath, messages } from '../i18n/ui';
+import { contentSlug, getLocale, localePath, messages } from '../i18n/ui';
 import { ChevronDown } from '@lucide/astro';
 import '../styles/articles.css';
 
 interface Props {
-	article: CollectionEntry<'articles'>;
+	article: CollectionEntry<'articles'> | CollectionEntry<'practice'>;
 }
 
 const { article } = Astro.props;
@@ -20,12 +22,23 @@ const t = messages[locale];
 const { Content, headings } = await render(article);
 const outline = headings.filter((heading) => heading.depth === 2);
 const articles = (await localizedCollection('articles', locale)).sort((a, b) => b.data.editorialScore - a.data.editorialScore);
-const nextArticle = articles.length > 1 ? articles[(articles.findIndex((item) => item.id === article.id) + 1) % articles.length] : undefined;
+const isPractice = article.collection === 'practice';
+const returnPath = isPractice ? '' : 'articles';
+const returnLabel = isPractice ? t.backHome : t.backArticles;
+const nextArticle = article.collection === 'practice'
+	? articles.find((item) => contentSlug(item.id) === article.data.relatedArticle)
+	: articles.length > 1 ? articles[(articles.findIndex((item) => item.id === article.id) + 1) % articles.length] : undefined;
+// The project owns the relationship; the article's return links are derived from it.
+const relatedProjects = (await localizedCollection('projects', locale))
+	.filter((project) => article.collection === 'practice'
+		? contentSlug(project.id) === article.data.relatedProject
+		: project.data.relatedArticles.some((slug) => slug.trim() === contentSlug(article.id)))
+	.sort((a, b) => a.data.order - b.data.order);
 ---
 
-<SiteLayout title={`${article.data.title} | Jayson Wu`} description={article.data.description}>
+<SiteLayout title={`${article.data.title} | Jayson Wu`} description={article.data.description} type={isPractice ? 'website' : 'article'}>
 	<div class="container writing-shell">
-		<MoreLink class="article-back" href={localePath(locale, 'articles')} back>{t.backArticles}</MoreLink>
+		<MoreLink class="article-back" href={localePath(locale, returnPath)} back>{returnLabel}</MoreLink>
 		<header class="article-header">
 			<h1>{article.data.title}</h1>
 			<p class="article-description">{article.data.description}</p>
@@ -47,12 +60,17 @@ const nextArticle = articles.length > 1 ? articles[(articles.findIndex((item) =>
 			</aside>}
 			<article class="article-body writing-body"><Content /></article>
 		</div>
-		<footer class="writing-end">
-			{nextArticle && <section class="writing-next" aria-labelledby="writing-next-title">
-				<h2 id="writing-next-title">{t.continueReading}</h2>
-				<ArticleList articles={[nextArticle]} headingLevel="h3" />
-			</section>}
-			<MoreLink class="writing-return" href={localePath(locale, 'articles')} back>{t.backArticles}</MoreLink>
+		<footer class:list={['content-end', 'writing-end', { 'has-related': relatedProjects.length > 0 }]}>
+			<div class="content-end-grid">
+				<RelatedContent id="related-projects-title" title={t.relatedCases} links={relatedProjects.map((project) => ({ title: project.data.title, href: localePath(locale, `projects/${contentSlug(project.id)}`) }))} />
+				{nextArticle && <section class="content-next writing-next" aria-label={t.continueReading}>
+					<RecommendationCard label={t.continueReading} title={nextArticle.data.title} href={localePath(locale, `articles/${contentSlug(nextArticle.id)}`)} />
+				</section>}
+			</div>
+			<div class="content-actions">
+				<ShareAction title={article.data.title} description={article.data.description} />
+					<MoreLink class="content-return" href={localePath(locale, returnPath)} back>{returnLabel}</MoreLink>
+			</div>
 		</footer>
 	</div>
 </SiteLayout>

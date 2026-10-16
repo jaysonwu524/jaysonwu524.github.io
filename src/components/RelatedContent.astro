@@ -1,0 +1,18 @@
+---
+import RecommendationCard from './RecommendationCard.astro';
+interface Props {
+  id: string;
+  title: string;
+  links: { title: string; href: string }[];
+}
+const { id, title, links } = Astro.props;
+---
+
+{links.length > 0 && <aside class="related-content" id={id} aria-label={title}>
+  {links.map((link) => <RecommendationCard label={title} title={link.title} href={link.href} />)}
+</aside>}
+
+<style>
+  .related-content { margin-top: var(--space-6); padding-top: var(--space-3); border-top: 1px solid var(--line); }
+  @media print { .related-content { display: none; } }
+</style>
