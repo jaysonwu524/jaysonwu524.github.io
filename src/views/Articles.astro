@@ -13,7 +13,7 @@ const articles = (await localizedCollection('articles', locale))
 
 <SiteLayout title={`${t.articles} | Jayson Wu`} description={t.articlesDescription}>
 	<div class="container">
-		<header class="page-hero">
+		<header class="page-hero" data-reveal>
 			<h1 class="section-title">{t.articles}</h1>
 			<p>{t.articlesDescription}</p>
 		</header>

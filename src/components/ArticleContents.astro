@@ -13,3 +13,7 @@ const t = messages[getLocale(Astro.url.pathname)];
 		{headings.map((heading) => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}
 	</ol>
 </nav>
+
+<script>
+	import '../scripts/article-contents';
+</script>

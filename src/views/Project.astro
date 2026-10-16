@@ -32,7 +32,7 @@ const relatedArticles = (project.data.relatedArticles ?? [])
 <SiteLayout title={`${project.data.title} | Jayson Wu`} description={project.data.description}>
 	<div class="container project-shell">
 		<MoreLink class="article-back" href={localePath(locale, 'projects')} back>{t.backProjects}</MoreLink>
-		<header class="project-header">
+		<header class="project-header" data-reveal>
 			<p class="project-kicker">{project.data.category}</p>
 			<h1>{projectName}{projectPositioning.length > 0 && <span>{projectPositioning.join('：')}</span>}</h1>
 			<p class="article-description">{project.data.description}</p>

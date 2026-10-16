@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import '../styles/motion.css';
 import themeScript from '../scripts/theme.js?raw';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -38,6 +39,16 @@ const shareImage = new URL('/social-preview.png', Astro.site ?? Astro.url.origin
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<script is:inline set:html={themeScript} />
+		<script is:inline>
+			// Avoid replaying the first viewport's entrance during a page crossfade.
+			window.addEventListener('pagereveal', (event) => {
+				if (!event.viewTransition) return;
+				document.documentElement.dataset.pageTransition = 'active';
+				event.viewTransition.finished.finally(() => {
+					delete document.documentElement.dataset.pageTransition;
+				});
+			});
+		</script>
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
 		{noindex && <meta name="robots" content="noindex, follow" />}
@@ -80,5 +91,8 @@ const shareImage = new URL('/social-preview.png', Astro.site ?? Astro.url.origin
 			<SiteFooter navItems={navItems} />
 		</div>
 		<ImagePreview />
+		<script>
+			import '../scripts/motion';
+		</script>
 	</body>
 </html>

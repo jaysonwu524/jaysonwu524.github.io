@@ -39,7 +39,7 @@ const relatedProjects = (await localizedCollection('projects', locale))
 <SiteLayout title={`${article.data.title} | Jayson Wu`} description={article.data.description} type={isPractice ? 'website' : 'article'}>
 	<div class="container writing-shell">
 		<MoreLink class="article-back" href={localePath(locale, returnPath)} back>{returnLabel}</MoreLink>
-		<header class="article-header">
+		<header class="article-header" data-reveal>
 			<h1>{article.data.title}</h1>
 			<p class="article-description">{article.data.description}</p>
 			<div class="article-meta">

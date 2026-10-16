@@ -7,7 +7,7 @@
   --home-summary-size: var(--text-small);
   --home-section-gap: var(--space-6);
   --home-label-width: 160px;
-  --home-ease: 240ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --home-ease: var(--transition);
 }
 
 /* Name and portrait share the first moment; supporting copy stays compact. */

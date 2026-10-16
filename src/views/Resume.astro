@@ -11,7 +11,7 @@ const { experience, skills, strengths } = resumes[locale];
 
 <SiteLayout title={`${t.resume} | Jayson Wu`}>
 	<div class="container resume-page">
-		<header class="resume-hero">
+		<header class="resume-hero" data-reveal>
 			<div class="resume-title-block">
 				<p class="resume-eyebrow">{t.personalResume}</p>
 				<h1>Jayson Wu</h1>
@@ -108,7 +108,7 @@ const { experience, skills, strengths } = resumes[locale];
 		background: var(--surface-soft);
 		color: var(--ink-soft);
 		letter-spacing: 0;
-		transition: color var(--transition), background-color var(--transition);
+		transition: color var(--transition), background-color var(--transition), transform var(--transition);
 	}
 	.resume-related :global(.resume-case-link:hover), .resume-related :global(.resume-case-link:focus-visible) {
 		background: var(--accent-soft);

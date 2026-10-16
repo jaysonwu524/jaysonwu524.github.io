@@ -30,6 +30,17 @@ Staff can trace materials, reports and processing status from a sample. Dedicate
 
 For report production, the system receives upstream analytical results and generates PDFs from the appropriate templates, supporting different AgeSeer report types and customized editions. Algorithm output is connected to the report presentation. Staff can preview reports, inspect source data and, when needed, edit the data and regenerate them.
 
+Report production uses components that render separately and can be combined into customized PDFs. New report editions can reuse existing capabilities while adapting the content and layout that change.
+
+Early execution records cover two generation paths, both measured from retrieving bioinformatics data to producing the PDF:
+
+| Generation path | Recorded result |
+| --- | --- |
+| Script-based batch generation | Approximately 30 seconds for 10 reports |
+| Cloud generation | Approximately 30 seconds for one report |
+
+These observations apply to the report versions and execution paths at that time. Without a common environment, concurrency figures or repeated samples, they are not a direct performance comparison. They also exclude subsequent human review and sending. They demonstrate an operational generation process whose execution time could be recorded.
+
 ## Separate management of generation, approval and sending
 
 A generated report must still be approved before delivery. Generation progress, approval workflows and sending status are managed separately so each role can identify the work awaiting attention.

@@ -147,6 +147,10 @@ Failed deletion should retain a reclamation record for retry. If a maximum retir
 
 Caching saves some upstream fetches but adds disk consumption, waiting and reclamation logic. Its value requires evidence.
 
+An early optimization record provides a concrete observation: for a file of approximately 20 MB, the second download took about 70% less time after caching was introduced. Reusing the local file helped in that repeated-download scenario.
+
+The record does not retain the full test environment, absolute timings, concurrency or repeated samples. It is therefore a historical observation for a particular scenario, not evidence of overall throughput or of scheduled cleanup outperforming LRU or LFU.
+
 Useful future measurements include:
 
 - Hit rate and upstream request counts.
@@ -156,7 +160,7 @@ Useful future measurements include:
 
 Verification should cover concurrent misses for one key, failed downloads, updates interleaved with reads, cleanup racing file opening and usage release after disconnection.
 
-Without load tests or production metrics, neither an eviction algorithm's superiority nor a cache's performance benefit should be assumed.
+Faster repeated downloads of one file do not establish that every request benefits. Overall results depend on hit rates, concurrent waiting, disk pressure and cleanup costs. Comparing eviction algorithms also requires the same workload.
 
 The core is an explicit lifecycle for downloading, reading and reclaiming. Filling a cache, identifying current readers and deciding when disk space is safe to reclaim are separate decisions that each need reliable coordination.
 

@@ -16,7 +16,7 @@ const t = messages[locale];
 
 <div class:list={['article-list', { 'project-list': variant === 'list', 'project-showcase': variant === 'showcase' }]}>
 	{projects.map((project) => (
-		<a class:list={['article-card', { 'project-list-card': variant === 'list' }]} href={localePath(locale, `projects/${contentSlug(project.id)}`)}>
+		<a class:list={['article-card', { 'project-list-card': variant === 'list' }]} href={localePath(locale, `projects/${contentSlug(project.id)}`)} data-reveal>
 			{variant === 'showcase' && <span class="showcase-category">{project.data.category}</span>}
 			{variant === 'list' && <span class="project-list-category">{project.data.category}</span>}
 			<div class="article-card-content">

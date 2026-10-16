@@ -2,7 +2,7 @@
 title: "Managing an agile engineering team: Delivery, collaboration and growth"
 description: "Coordinating nine people across projects through clinic requirements analysis, LAIFE AI collaboration, performance goals, self-hosted builds and team development, including the trade-offs."
 editorialScore: 7.5
-readingTime: "18 min read"
+readingTime: "20 min read"
 tags: ["Team collaboration", "Engineering management", "Delivery practice"]
 ---
 
@@ -131,6 +131,16 @@ Some work is exploratory. An outcome-oriented update should not turn a proposal 
 
 Minor defects and routine usability adjustments can be grouped to keep the meeting readable. Problems affecting data correctness, security, stability or a release plan need separate attention. Summarizing should make information easier to understand while keeping risks visible.
 
+### Deliver in stages: Support the first reports, then complete automation
+
+Business delivery and automation did not advance at the same pace for MSA reports. By April 2026, report text could be generated automatically, while producing the complete illustrated report still involved manual work. For the first two reports, the plan paired developer-generated text with graphics prepared by a designer to support the immediate delivery milestone.
+
+This required two distinct completion criteria: whether a report was ready for delivery, and whether the system could produce it automatically. The first required checking content, graphics and review results; the second also required data integration, template rendering and complete output. Finishing text generation did not finish the automation task for the whole report.
+
+By July 2026, automated MSA report generation was complete, and 11 PRO reports had been generated for internal testing. These were different milestones: an implemented automation capability and validation of another report type. The internal test count was not a customer delivery count.
+
+This experience made the limits of a transitional workflow more important to me. When a business milestone has a deadline, controlled manual collaboration can bridge unfinished steps while automation continues. The temporary arrangement needs named responsibilities, checks and remaining work; otherwise manual fallback can persist long after the board says the task is done.
+
 ## 3. Engineering delivery: Self-hosted builds and artifact management
 
 Merged code changes need to become artifacts that can be used for subsequent deployment. We host source control, continuous integration and artifact management internally so that everyday development follows a shared automated path.
@@ -147,6 +157,16 @@ Internal hosting also covers Docker images, npm packages, Maven dependencies and
 This gives source code, builds and artifacts a defined connection, reducing reliance on manual packaging and file transfers between team members. A newcomer's first merge request also follows the same path, helping them understand how a change becomes a build artifact.
 
 AI review provides an additional check. It can flag issues for investigation, while developers remain responsible for business rules, access boundaries and the impact of changes. A successful build does not replace testing or release review. The toolchain executes repetitive steps; the relevant review stages still determine readiness for delivery.
+
+### Use architectural boundaries to support responsibilities
+
+The build pipeline explains how code becomes an artifact. People also need to understand where a change belongs and how far its effects reach. In the platform architecture, I distinguish core, shared and business layers. The core holds the runtime engine, base framework and security mechanisms; the shared layer provides reusable components, common dependencies and API SDKs; the business layer holds frequently changing product workflows and rules.
+
+These boundaries also guide task allocation and review. In reporting, template content and approval rules belong to the business, rendering capabilities reused across reports can become shared components, and changes to login or authorization context require a platform-wide view. A developer should first identify the layer affected by a requirement, then decide who needs to confirm the change.
+
+Layers do not require three separate teams or a separate service for every layer. In a small team, one developer may work across all three. The boundaries still help explain responsibilities and dependencies. Shared changes need compatibility checks for other callers; business code should reuse defined interfaces so that a temporary need in one product does not change foundational behavior for every project.
+
+Subsequent iterations need to test whether these boundaries work: can newcomers understand module responsibilities, does reuse reduce duplication, and do shared modules become a bottleneck? If every change still needs the same person's confirmation, the interfaces, documentation or division of responsibility need adjustment.
 
 ## 4. Performance goals: Recognize delivery, quality and collaboration
 

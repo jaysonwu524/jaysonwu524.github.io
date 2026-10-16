@@ -20,8 +20,12 @@ const t = messages[getLocale(Astro.url.pathname)];
 
 <style>
   .theme-toggle[hidden] { display: none; }
-  .theme-toggle .theme-sun { display: none; }
-  :global(:root[data-theme='dark']) .theme-toggle .theme-sun { display: block; }
-  :global(:root[data-theme='dark']) .theme-toggle .theme-moon { display: none; }
+  .theme-toggle { display: grid; }
+  .theme-toggle .ui-icon { grid-area: 1 / 1; transition: opacity var(--transition), transform var(--transition); }
+  .theme-toggle .theme-sun { opacity: 0; transform: rotate(-45deg) scale(.7); }
+  .theme-toggle .theme-moon { opacity: 1; transform: rotate(0) scale(1); }
+  :global(:root[data-theme='dark']) .theme-toggle .theme-sun { opacity: 1; transform: rotate(0) scale(1); }
+  :global(:root[data-theme='dark']) .theme-toggle .theme-moon { opacity: 0; transform: rotate(45deg) scale(.7); }
+  @media (prefers-reduced-motion: reduce) { .theme-toggle .ui-icon { transform: none !important; } }
   @media print { .theme-toggle { display: none; } }
 </style>

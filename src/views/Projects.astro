@@ -11,7 +11,7 @@ const projects = (await localizedCollection('projects', locale)).sort((a, b) => 
 
 <SiteLayout title={`${t.cases} | Jayson Wu`} description={t.projectsMeta}>
 	<div class="container">
-		<header class="page-hero">
+		<header class="page-hero" data-reveal>
 			<h1 class="section-title">{t.projects}</h1>
 			<p>{t.projectsDescription}</p>
 		</header>

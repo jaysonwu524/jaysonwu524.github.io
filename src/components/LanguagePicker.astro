@@ -38,5 +38,10 @@ const isNotFound = /^404(?:\.html)?$/.test(path);
   .language-options { position: absolute; right: 0; top: calc(100% + var(--space-1)); width: var(--language-menu-width); padding: var(--space-1); background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 8%, transparent); }
   .language-options a { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); min-height: 44px; padding: var(--space-1); color: var(--ink-soft); }
   .language-options a:hover, .language-options a[aria-current] { color: var(--accent); background: var(--surface-soft); text-decoration: none; }
+  .language-options a { transition: color var(--transition), background-color var(--transition); }
+  @media (prefers-reduced-motion: no-preference) {
+    .language-picker[open] .language-options { animation: language-menu-enter var(--motion-fast) var(--motion-ease) both; }
+    @keyframes language-menu-enter { from { opacity: 0; transform: translateY(calc(-1 * var(--motion-distance) / 2)); } to { opacity: 1; transform: translateY(0); } }
+  }
   @media print { .language-picker { display: none; } }
 </style>

@@ -4,10 +4,13 @@ document.querySelectorAll<HTMLElement>('[data-share-action]').forEach((element) 
   const status = element.querySelector<HTMLElement>('[data-share-status]')!;
   const field = element.querySelector<HTMLInputElement>('[data-share-url]')!;
   const canShare = typeof navigator.share === 'function';
+  let feedbackTimer: number | undefined;
   label.textContent = (canShare ? element.dataset.shareLabel : element.dataset.copyLabel) || '';
   element.hidden = false;
 
   button.addEventListener('click', async () => {
+    window.clearTimeout(feedbackTimer);
+    delete element.dataset.state;
     button.disabled = true;
     status.textContent = '';
     field.hidden = true;
@@ -22,6 +25,8 @@ document.querySelectorAll<HTMLElement>('[data-share-action]').forEach((element) 
         }
       }
       await navigator.clipboard.writeText(field.value);
+      element.dataset.state = 'copied';
+      feedbackTimer = window.setTimeout(() => { delete element.dataset.state; }, 2400);
       status.textContent = element.dataset.copiedLabel || '';
     } catch {
       status.textContent = element.dataset.manualLabel || '';

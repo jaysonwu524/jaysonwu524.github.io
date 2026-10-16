@@ -47,7 +47,13 @@
   --space-6: 4rem;
   --space-7: 6rem;
   --radius: 2px;
-  --transition: 180ms ease;
+  --motion-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --motion-fast: 180ms;
+  --motion-enter: 320ms;
+  --motion-distance: 10px;
+  --motion-nudge: 3px;
+  --motion-press: 1px;
+  --transition: var(--motion-fast) var(--motion-ease);
   font-family: var(--sans);
   color: var(--ink);
   background: var(--bg);
@@ -95,9 +101,10 @@ site-navigation { display: block; }
   color: var(--ink-soft);
   background: transparent;
   cursor: pointer;
-  transition: color var(--transition), background-color var(--transition);
+  transition: color var(--transition), background-color var(--transition), transform var(--transition);
 }
 .header-icon-button:hover, .header-icon-button:focus-visible { color: var(--accent); background: var(--surface-soft); }
+.header-icon-button:active { transform: translateY(var(--motion-press)); }
 .brand { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; color: var(--ink); }
 .brand:hover { color: var(--ink); text-decoration: none; }
 .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; background: var(--ink); color: var(--bg); border-radius: var(--radius); font: 600 0.65rem/1 var(--mono); }
@@ -111,13 +118,13 @@ html:lang(ja) { --sans: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Yu Gothi
 .nav-link::after { position: absolute; bottom: 4px; left: 0; right: 0; height: 1px; background: var(--accent); content: ''; transform: scaleX(0); transition: transform var(--transition); }
 .nav-link:hover, .nav-link[aria-current='page'] { color: var(--accent); text-decoration: none; }
 .nav-link:hover::after, .nav-link[aria-current='page']::after { transform: scaleX(1); }
-.more-link { display: inline-flex; align-items: center; min-height: 44px; gap: var(--space-1); font-size: var(--text-small); letter-spacing: 0.025em; }
+.more-link { display: inline-flex; align-items: center; min-height: 44px; gap: var(--space-1); font-size: var(--text-small); letter-spacing: 0.025em; transition: color var(--transition), background-color var(--transition), transform var(--transition); }
 .ui-icon { display: block; flex-shrink: 0; width: var(--icon-size); height: var(--icon-size); stroke-width: var(--icon-stroke); }
 img[data-preview-image] { cursor: zoom-in; }
 img[data-preview-image]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .link-arrow { transition: transform var(--transition); }
-.more-link:hover .link-arrow, .more-link:focus-visible .link-arrow { transform: translateX(3px); }
-.more-link-back:hover .link-arrow, .more-link-back:focus-visible .link-arrow { transform: translateX(-3px); }
+.more-link:hover .link-arrow, .more-link:focus-visible .link-arrow { transform: translateX(var(--motion-nudge)); }
+.more-link-back:hover .link-arrow, .more-link-back:focus-visible .link-arrow { transform: translateX(calc(-1 * var(--motion-nudge))); }
 
 /* Homepage: a short introduction followed by a clear reading sequence */
 .author-intro { display: grid; grid-template-columns: minmax(0, 1fr) var(--avatar-size); gap: var(--space-6); align-items: center; padding-block: var(--space-7); }
@@ -136,7 +143,7 @@ img[data-preview-image]:focus-visible { outline: 2px solid var(--accent); outlin
 
 /* One shared article row for the homepage and archive */
 .article-list { min-width: 0; }
-.article-card { display: grid; grid-template-columns: minmax(0, 1fr) 20px; gap: var(--space-3); padding-block: var(--space-4); color: var(--ink); }
+.article-card { display: grid; grid-template-columns: minmax(0, 1fr) 20px; gap: var(--space-3); padding-block: var(--space-4); color: var(--ink); transition: color var(--transition), transform var(--transition); }
 .article-card:first-child { padding-top: 0; }
 .article-card + .article-card { border-top: 1px solid var(--line); }
 .article-card:last-child { padding-bottom: 0; }
@@ -146,7 +153,10 @@ img[data-preview-image]:focus-visible { outline: 2px solid var(--accent); outlin
 .article-card p { margin: 0; color: var(--ink-soft); font-size: var(--text-small); }
 .article-card-meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin-top: var(--space-2); color: var(--ink-muted); font-size: var(--text-meta); }
 .article-arrow { padding-top: 4px; color: var(--ink-muted); transition: color var(--transition), transform var(--transition); }
-.article-card:hover .article-arrow, .article-card:focus-visible .article-arrow { color: var(--accent); transform: translate(2px, -2px); }
+.article-card:hover .article-arrow, .article-card:focus-visible .article-arrow { color: var(--accent); transform: translate(var(--motion-nudge), calc(-1 * var(--motion-nudge))); }
+.project-showcase .article-card:hover .article-arrow, .project-showcase .article-card:focus-visible .article-arrow,
+.project-list-card:hover .article-arrow, .project-list-card:focus-visible .article-arrow { transform: translateX(var(--motion-nudge)); }
+.article-card:active, .recommendation-card:active, .more-link:active { opacity: 1; transform: translateY(var(--motion-press)); }
 .empty-state { color: var(--ink-soft); padding-block: var(--space-4); }
 
 /* Page headings and project archive */
@@ -213,8 +223,8 @@ img[data-preview-image]:focus-visible { outline: 2px solid var(--accent); outlin
   font: 500 var(--text-body)/1.5 var(--display);
 }
 .recommendation-card .ui-icon { flex-shrink: 0; color: var(--ink-muted); transition: color var(--transition), transform var(--transition); }
-.recommendation-card:hover, .recommendation-card:focus-visible { text-decoration: none; color: var(--accent); border-color: var(--accent); background: var(--accent-soft); transform: translateX(2px); }
-.recommendation-card:hover .ui-icon, .recommendation-card:focus-visible .ui-icon { color: var(--accent); transform: translate(2px, -2px); }
+.recommendation-card:hover, .recommendation-card:focus-visible { text-decoration: none; color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.recommendation-card:hover .ui-icon, .recommendation-card:focus-visible .ui-icon { color: var(--accent); transform: translate(var(--motion-nudge), calc(-1 * var(--motion-nudge))); }
 
 /* Shared detail-page ending. The component rule is intentionally stronger so
    related content does not reintroduce its standalone separator inside this group. */
@@ -320,7 +330,7 @@ img[data-preview-image]:focus-visible { outline: 2px solid var(--accent); outlin
 .site-footer .footer-top-link { flex-shrink: 0; color: var(--footer-ink-muted); font-size: var(--text-meta); }
 
 @media screen {
-  :root[data-theme='dark'] { --avatar-filter: grayscale(1) invert(1); --avatar-blend: screen; --avatar-opacity: 0.85; }
+  :root[data-theme='dark'] { --avatar-filter: grayscale(1); --avatar-blend: normal; --avatar-opacity: 1; }
   :root[data-theme='dark'] .astro-code, :root[data-theme='dark'] .astro-code span {
     color: var(--shiki-dark) !important;
     background-color: var(--shiki-dark-bg) !important;
@@ -329,7 +339,7 @@ img[data-preview-image]:focus-visible { outline: 2px solid var(--accent); outlin
 
 /* Preserve the system theme when JavaScript is unavailable. */
 @media screen and (prefers-color-scheme: dark) {
-  :root:not([data-theme]) { --avatar-filter: grayscale(1) invert(1); --avatar-blend: screen; --avatar-opacity: 0.85; }
+  :root:not([data-theme]) { --avatar-filter: grayscale(1); --avatar-blend: normal; --avatar-opacity: 1; }
   :root:not([data-theme]) .astro-code, :root:not([data-theme]) .astro-code span {
     color: var(--shiki-dark) !important;
     background-color: var(--shiki-dark-bg) !important;

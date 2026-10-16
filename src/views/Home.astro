@@ -21,7 +21,7 @@ const projects = (await localizedCollection('projects', locale))
 
 <SiteLayout>
 	<div class="container home-page">
-		<section class="author-intro" aria-labelledby="intro-title">
+		<section class="author-intro" aria-labelledby="intro-title" data-reveal>
 			<div class="intro-copy">
 				<h1 id="intro-title">Jayson Wu</h1>
 				<p><span class="intro-statement">{t.statement}</span><span class="intro-description">{t.intro}</span></p>
@@ -33,7 +33,7 @@ const projects = (await localizedCollection('projects', locale))
 			<Image class="profile-avatar" src={avatar} alt={t.avatar} width={224} height={224} widths={[64, 128, 224, 448]} sizes="(max-width: 480px) 64px, (max-width: 767px) 128px, (max-width: 1024px) 192px, 224px" format="webp" loading="eager" fetchpriority="high" />
 		</section>
 
-		<section class="editorial-section home-about" aria-labelledby="about-title">
+		<section class="editorial-section home-about" aria-labelledby="about-title" data-reveal>
 			<div class="section-label"><h2 id="about-title">{t.about}</h2></div>
 			<div class="about-content">
 				<p>{t.aboutFirst}</p>
@@ -45,7 +45,7 @@ const projects = (await localizedCollection('projects', locale))
 		</section>
 
 		<section class="home-section home-writing" aria-labelledby="writing-title">
-			<div class="home-section-heading">
+			<div class="home-section-heading" data-reveal>
 				<h2 id="writing-title">{t.selectedArticles}</h2>
 				<MoreLink href={localePath(locale, 'articles')}>{t.allArticles}</MoreLink>
 			</div>
@@ -53,7 +53,7 @@ const projects = (await localizedCollection('projects', locale))
 		</section>
 
 		<section class="home-section home-projects" aria-labelledby="projects-title">
-			<div class="home-section-heading">
+			<div class="home-section-heading" data-reveal>
 				<h2 id="projects-title">{t.cases}</h2>
 				<MoreLink href={localePath(locale, 'projects')}>{t.allProjects}</MoreLink>
 			</div>

@@ -16,7 +16,7 @@ const t = messages[locale];
 
 <div class:list={['article-list', { 'featured-writing': variant === 'featured', 'writing-archive': variant === 'archive' }]}>
 	{articles.length ? articles.map((article) => (
-		<a class="article-card" href={localePath(locale, `articles/${contentSlug(article.id)}`)}>
+		<a class="article-card" href={localePath(locale, `articles/${contentSlug(article.id)}`)} data-reveal>
 			{variant === 'archive' && <div class="writing-topic"><span>{article.data.tags[1] ?? article.data.tags[0] ?? t.engineering}</span><span>{article.data.readingTime}</span></div>}
 			<div class="article-card-content">
 				<Heading>{article.data.title}</Heading>

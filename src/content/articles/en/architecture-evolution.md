@@ -2,7 +2,7 @@
 title: "RateHub: Consolidating a distributed market-data platform into a single real-time service"
 description: "How a shared market-data service removed database polling from quote delivery and clarified the boundaries of in-memory state, candlestick queries and asynchronous tasks."
 editorialScore: 8.0
-readingTime: "10 min read"
+readingTime: "12 min read"
 tags: [Architecture, Real-time market data, Engineering trade-offs]
 ---
 
@@ -10,9 +10,24 @@ The subsidiary was established in June 2023. When I joined in August, projects c
 
 Some Twelvedata and Finnhub plans purchased at the time limited each API key to one to three WebSocket connections. Before the business reached scale, duplicated integrations already cost close to USD 2,000 per month. Those limits describe the plans and integration model then, rather than every product those providers offer.
 
-RateHub became a shared service connecting to Twelvedata, Finnhub, Binance, Whitezzzs and other sources. It managed ETFs, indices, stocks, foreign exchange, spot instruments and derivatives, supplying quotes, order books and candlesticks across intervals.
+RateHub became a shared service connecting to Twelvedata, Finnhub, Binance, XChange, SSI, Whitezzzs and other market-data sources. It managed ETFs, indices, stocks, foreign exchange, spot instruments and derivatives, supplying quotes, order books and candlesticks across intervals.
 
 Its first architecture separated ingestion and distribution with MongoDB as shared state. The second consolidated the core process, kept latest prices in JVM memory and triggered distribution from upstream messages. The essential change concerned how live data moved.
+
+### Shared connections also need reusable data interfaces
+
+Sharing upstream connections solved only part of the duplication. Downstream projects also needed consistent interfaces for subscribing to quotes, displaying price changes and querying candlesticks across intervals. Otherwise each business project would still adapt provider response formats independently.
+
+| Capability | Downstream output |
+| --- | --- |
+| Real-time subscriptions | Quotes and daily price changes pushed to multiple projects over WebSocket |
+| Latest candlestick updates | Ongoing updates to the current minute's candlestick for chart refreshes |
+| Historical candlestick queries | A unified query interface and response format for minute, day, week, month and other intervals |
+| Source adaptation | Centralized source integration and data handling to reduce repeated adaptation in business projects |
+
+Consistent interfaces require defined semantics as well as field names. Instrument codes, price units, timestamps and interval boundaries may differ between sources. The current minute's candle continues changing, so each update is not a new closed candle. These differences need explicit agreements between ingestion and downstream consumers.
+
+Market data also feeds trading workflows. Downstream systems can check limit orders and calculate position risk after an update, then decide on processing under their own rules. RateHub supplies the data; order state, account calculations and settlement remain business responsibilities. Tolerance acceptable for displaying a latest snapshot is not automatically sufficient for financial settlement. Trading decisions also need explicit source, freshness and abnormal-price handling rules in the business system.
 
 ## 1. Version one: connecting ingestion and distribution through a database
 
