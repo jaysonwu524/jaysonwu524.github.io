@@ -1,6 +1,6 @@
 ---
-name: RegenBio · ヘルスケア業務基盤
-title: RegenBio：検査レポートの交付から健康サービス管理へ
+name: RegenBio Cloud · ヘルスケア業務基盤
+title: RegenBio Cloud：検査レポートの交付から健康サービス管理へ
 description: AgeSeer のレポート業務を起点に、検体、実験データ、レポート承認・交付をつなぎ、予約、相談、サービスプラン管理へ拡張。
 category: 健康検査
 order: 2
@@ -12,7 +12,7 @@ relatedArticles: [microservice-authorization]
 
 検査レポートの交付には、検体の受け入れ、実験、データ整理、作成、複数人による確認が関わります。版や利用者が増えるほど、各検体の進捗、資料の不足、担当者、交付予定を把握する必要があります。
 
-RegenBio は、この流れをもとに内部業務と利用者向けサービスを一つの基盤に整理しました。RegenBio Cloud がバックエンド、RegenBio Web が管理画面、統一ログイン、利用者向けミニプログラムを担い、AgeSeer の検査レポートや LaTipSoh の健康サービスに対応します。
+RegenBio Cloud は、この流れをもとに内部業務と利用者向けサービスを一つの基盤に整理しました。バックエンドが業務フロー、RegenBio Web が管理画面、統一ログイン、利用者向けミニプログラムを担い、AgeSeer の検査レポートや LaTipSoh の健康サービスに対応します。
 
 ## 分散した道具から業務システムへ
 

@@ -1,6 +1,6 @@
 ---
-name: RegenBio · 健康業務平臺
-title: RegenBio：從檢測報告交付到健康服務管理
+name: RegenBio Cloud · 健康業務平臺
+title: RegenBio Cloud：從檢測報告交付到健康服務管理
 description: 以 AgeSeer 報告業務為起點，將樣本、實驗數據、報告審批與交付納入同一條業務鏈路，並擴展預約、諮詢與服務方案管理。
 category: 健康檢測
 order: 2
@@ -22,7 +22,7 @@ relatedArticles:
 
 一份檢測報告的交付，涉及收樣、實驗、數據整理、報告製作和多人審核。隨著報告版本與服務對象增加，團隊需要知道每份樣本走到了哪一步、資料是否齊全、誰正在處理，以及報告何時可以交付。
 
-RegenBio 從這條業務鏈路出發，將後臺處理與用戶服務組織為一套健康業務平臺。後端 RegenBio Cloud 承載業務流程，前端 RegenBio Web 提供配套管理端、統一登錄及用戶小程序，覆蓋 AgeSeer 檢測報告和 LaTipSoh 健康服務等場景。
+RegenBio Cloud 從這條業務鏈路出發，將後臺處理與用戶服務組織為一套健康業務平臺。後端承載業務流程，前端 RegenBio Web 提供配套管理端、統一登錄及用戶小程序，覆蓋 AgeSeer 檢測報告和 LaTipSoh 健康服務等場景。
 
 ## 從分散的工具流程，走向業務系統
 

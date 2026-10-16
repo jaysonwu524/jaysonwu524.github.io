@@ -54,7 +54,7 @@ AI makes me more willing to try an approach. It also makes the need for continuo
 
 ## 3. A real fix: Working with AI on MQ consumer transaction boundaries
 
-While investigating the RegenBio reporting system, I encountered a concrete failure: report approvals advanced asynchronously through RocketMQ, but database changes did not roll back as expected when the consumer threw an exception.
+While investigating the RegenBio Cloud reporting system, I encountered a concrete failure: report approvals advanced asynchronously through RocketMQ, but database changes did not roll back as expected when the consumer threw an exception.
 
 The issue concerned the consumer's local database transaction, rather than RocketMQ's transactional messaging mechanism. Message retries and database rollback are separate responsibilities. An exception that triggers redelivery does not establish that previous database writes have been undone.
 

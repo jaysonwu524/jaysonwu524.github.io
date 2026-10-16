@@ -1,6 +1,6 @@
 ---
-name: RegenBio · Health business platform
-title: "RegenBio: From test report delivery to health service management"
+name: RegenBio Cloud · Health business platform
+title: "RegenBio Cloud: From test report delivery to health service management"
 description: Starting with AgeSeer reports, connects samples, laboratory data, report approval and delivery, then extends into appointments, consultations and service plans.
 category: Health testing
 order: 2
@@ -12,7 +12,7 @@ relatedArticles: [microservice-authorization]
 
 Delivering a test report involves sample reception, experiments, data preparation, report production and review by multiple people. As report versions and customer groups grow, teams need to know where each sample stands, whether its materials are complete, who is handling it and when the report can be delivered.
 
-RegenBio organizes this workflow into a health business platform connecting internal operations with customer services. RegenBio Cloud provides backend workflows; RegenBio Web supplies administration, unified login and customer mini-programs for AgeSeer reports, LaTipSoh health services and related scenarios.
+RegenBio Cloud organizes this workflow into a health business platform connecting internal operations with customer services. Its backend provides business workflows; RegenBio Web supplies administration, unified login and customer mini-programs for AgeSeer reports, LaTipSoh health services and related scenarios.
 
 ## From separate tools to an integrated business system
 

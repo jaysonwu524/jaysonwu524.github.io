@@ -11,7 +11,7 @@ const sharedSkills = [
   'Vue 3 / React / TypeScript / Umi Max / Ant Design / qiankun / Taro / Vite',
 ];
 const related = [
-  [{ name: 'RegenBio', href: '/projects/regenbio/' }, { name: 'LAIFE AI', href: '/projects/laife-ai/' }],
+  [{ name: 'RegenBio Cloud', href: '/projects/regenbio/' }, { name: 'LAIFE AI', href: '/projects/laife-ai/' }],
   [{ name: 'LHMS Framework', href: '/projects/lhms-framework/' }, { name: 'RateHub', href: '/articles/architecture-evolution/' }],
   [],
 ];
@@ -23,7 +23,7 @@ const zh = {
     '熟悉多租户、权限隔离、支付交易闭环、异步任务与消息驱动处理，能够建立 CI/CD 与稳定性保障机制，协调多团队完成高质量交付。',
   ],
   experience: [
-    { period: '2024.08 至今', role: '研发高级主管', company: 'Regenerative Bio', detail: '从 0 到 1 搭建 IT 与数字化研发体系，主导需求评审、开发规范、分支发布、测试验收、上线回滚与 CI/CD 流程。建设统一认证授权、多租户、配置中心、文件存储、通知、日志监控和网关治理等平台底座，支撑 5 条业务线复用。', projects: [{ name: 'RegenBio 健康业务平台', href: '/projects/regenbio/' }, { name: 'LAIFE AI', href: '/projects/laife-ai/' }] },
+    { period: '2024.08 至今', role: '研发高级主管', company: 'Regenerative Bio', detail: '从 0 到 1 搭建 IT 与数字化研发体系，主导需求评审、开发规范、分支发布、测试验收、上线回滚与 CI/CD 流程。建设统一认证授权、多租户、配置中心、文件存储、通知、日志监控和网关治理等平台底座，支撑 5 条业务线复用。', projects: [{ name: 'RegenBio Cloud 健康业务平台', href: '/projects/regenbio/' }, { name: 'LAIFE AI', href: '/projects/laife-ai/' }] },
     { period: '2022.04 至 2024.08', role: '研发组长', company: '重庆云链天诚数据科技有限公司', detail: '负责政企数字化与区块链交易平台业务线的架构设计、研发管理和项目交付。主导行情聚合系统、交易所通用中台和多个 ToB / ToG 项目落地，建立 Code Review、技术培训、交付规范和项目复盘机制。', projects: [{ name: 'LHMS 通用业务中台', href: '/projects/lhms-framework/' }, { name: 'RateHub 架构实践', href: '/articles/architecture-evolution/' }] },
     { period: '2021.05 至 2022.03', role: 'IT 技术支持', company: '科大讯飞股份有限公司', detail: '负责智慧校园业务系统现场技术支持与运维保障，日均处理 10+ 技术工单，覆盖教学、考试、排课、账号权限、数据同步和高峰期保障。', projects: [] },
   ],
